@@ -5,14 +5,19 @@ import "fmt"
 type Token struct {
 	t_type TokenType
 	lexeme string
-	literal int
+	literal string
 	line int
 }
 
 // Prints tokens in a readable manner
 func PrintTokens(tokens []Token) {
 	for _, tok := range(tokens) {
-		s := fmt.Sprintf("{%s, %s, %d, %d}", tok.t_type.typeString(), tok.lexeme, tok.literal, tok.line)
+		s := ""
+		if tok.literal == "" {
+			s = fmt.Sprintf("{%s, %s, %d}", tok.t_type.typeString(), tok.lexeme, tok.line)
+		} else {
+			s = fmt.Sprintf("{%s, %s, %s, %d}", tok.t_type.typeString(), tok.lexeme, tok.literal, tok.line)
+		}
 		fmt.Println(s)
 	}
 }
@@ -47,32 +52,70 @@ func (l *lexer) advance() rune {
 	return rune(l.source[l.current - 1])
 }
 
+// Peeks at next character without consuming it
+func (l *lexer) peek() rune {
+	if !l.isAtEnd() {
+		return rune(l.source[l.current])
+	}
+	return ' '
+}
+
+// If peek() == x -> a and advance, else b
+func (l *lexer) match(x rune, a TokenType, b TokenType) TokenType {
+	if l.peek() == x {
+		l.advance()
+		return a
+	} else {
+		return b
+	}
+}
+
+// Returns a new Token instance using input type and literal, and infered lexeme and line
+func (l *lexer) addToken(t_type TokenType, literal string) Token {
+	return Token{t_type, l.source[l.start:l.current], literal, l.line}
+}
+
 // Advances current and creates the next token
 func (l *lexer) scanToken() Token {
 	char := l.advance()
 
-	// Creates single-character tokens
 	switch char {
+
+	// Creates single-character tokens
 	case '+':
-		return Token{PLUS, string(char), 1, l.line}
+		return l.addToken(PLUS, "")
 	case '-':
-		return Token{MINUS, string(char), 1, l.line}
+		return l.addToken(MINUS, "")
 	case '(':
-		return Token{LEFT_PAREN, string(char), 1, l.line}
+		return l.addToken(LEFT_PAREN, "")
 	case ')':
-		return Token{RIGHT_PAREN, string(char), 1, l.line}
+		return l.addToken(RIGHT_PAREN, "")
 	case '{':
-		return Token{LEFT_BRACE, string(char), 1, l.line}
+		return l.addToken(LEFT_BRACE, "")
 	case '}':
-		return Token{RIGHT_BRACE, string(char), 1, l.line}
+		return l.addToken(RIGHT_BRACE, "")
 	case ',':
-		return Token{COMMA, string(char), 1, l.line}
+		return l.addToken(COMMA, "")
 	case ';':
-		return Token{SEMICOLON, string(char), 1, l.line}
+		return l.addToken(SEMICOLON, "")
 	case '.':
-		return Token{DOT, string(char), 1, l.line}
+		return l.addToken(DOT, "")
 	case '*':
-		return Token{STAR, string(char), 1, l.line}
+		return l.addToken(STAR, "")
+
+	// Create one/two-character tokens
+	// '=' or '=='
+	case '=':
+		return l.addToken(l.match('=', EQUAL_EQUAL, EQUAL), "")
+	// '!' or '!='
+	case '!':
+		return l.addToken(l.match('=', BANG_EQUAL, BANG), "")
+	// '<' or '<='
+	case '<':
+		return l.addToken(l.match('=', LESS_EQUAL, LESS), "")
+	// '>' or '>='
+	case '>':
+		return l.addToken(l.match('=', GREATER_EQUAL, GREATER), "")
 	}
 
 	return Token{}
@@ -86,6 +129,6 @@ func (l *lexer) ScanTokens() []Token {
 		l.tokens = append(l.tokens, l.scanToken())
 	}
 
-	l.tokens = append(l.tokens, Token{EOF, "", 0, l.line})
+	l.tokens = append(l.tokens, Token{EOF, "EOF", "", l.line})
 	return l.tokens
 }

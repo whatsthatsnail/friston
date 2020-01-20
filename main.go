@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	scanner := lexer.NewLexer("+-(){},.;*")
+	scanner := lexer.NewLexer("+-(){},.;*===!!=<<=>>=")
 	test := scanner.ScanTokens()
 	lexer.PrintTokens(test)
 }

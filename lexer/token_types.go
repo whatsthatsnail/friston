@@ -17,6 +17,13 @@ const (
 
 	// One or two characters
 	EQUAL
+	EQUAL_EQUAL
+	BANG
+	BANG_EQUAL
+	LESS
+	LESS_EQUAL
+	GREATER
+	GREATER_EQUAL
 
 	// Literals
 	NUMBER
@@ -50,8 +57,22 @@ func (t TokenType) typeString() string {
 	case 10:
 		return "EQUAL"
 	case 11:
-		return "NUMBER"
+		return "EQUAL_EQUAL"
 	case 12:
+		return "BANG"
+	case 13:
+		return "BANG_EQUAL"
+	case 14:
+		return "LESS"
+	case 15:
+		return "LESS_EQUAL"
+	case 16:
+		return "GREATER"
+	case 17:
+		return "GREATER_EQUAL"
+	case 18:
+		return "NUMBER"
+	case 19:
 		return "EOF"
 	}
 
