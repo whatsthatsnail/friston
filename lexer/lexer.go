@@ -43,6 +43,7 @@ func NewLexer(code string) lexer {
 	return l
 }
 
+// TODO: Report column of error, print line of error, etc.
 // Prints error message and sets error flag
 func (l *lexer) throwError(message string) {
 	l.report(l.line, "Error: " + message)
@@ -69,8 +70,10 @@ func (l *lexer) advance() rune {
 func (l *lexer) peek() rune {
 	if !l.isAtEnd() {
 		return rune(l.source[l.current])
+	} else {
+		return '\n'
 	}
-	return ' '
+	return '\n'
 }
 
 // If peek() == x -> a and advance, else b
@@ -83,56 +86,71 @@ func (l *lexer) match(x rune, a TokenType, b TokenType) TokenType {
 	}
 }
 
-// Returns a new Token instance using input type and literal, and infered lexeme and line
-func (l *lexer) addToken(t_type TokenType, literal string) Token {
-	return Token{t_type, l.source[l.start:l.current], literal, l.line}
+// Adds a new Token instance to l.tokens using input type and literal, and infered lexeme and line
+func (l *lexer) addToken(t_type TokenType, literal string) {
+	l.tokens = append(l.tokens, Token{t_type, l.source[l.start:l.current], literal, l.line})
 }
 
-// Advances current and creates the next token
-func (l *lexer) scanToken() Token {
+// Advances current and adds the current token
+func (l *lexer) scanToken() {
 	char := l.advance()
 
 	switch char {
 
 	// Creates single-character tokens
 	case '+':
-		return l.addToken(PLUS, "")
+		l.addToken(PLUS, "")
 	case '-':
-		return l.addToken(MINUS, "")
+		l.addToken(MINUS, "")
 	case '(':
-		return l.addToken(LEFT_PAREN, "")
+		l.addToken(LEFT_PAREN, "")
 	case ')':
-		return l.addToken(RIGHT_PAREN, "")
+		l.addToken(RIGHT_PAREN, "")
 	case '{':
-		return l.addToken(LEFT_BRACE, "")
+		l.addToken(LEFT_BRACE, "")
 	case '}':
-		return l.addToken(RIGHT_BRACE, "")
+		l.addToken(RIGHT_BRACE, "")
 	case ',':
-		return l.addToken(COMMA, "")
+		l.addToken(COMMA, "")
 	case ';':
-		return l.addToken(SEMICOLON, "")
+		l.addToken(SEMICOLON, "")
 	case '.':
-		return l.addToken(DOT, "")
+		l.addToken(DOT, "")
 	case '*':
-		return l.addToken(STAR, "")
+		l.addToken(STAR, "")
 
-	// Create one/two-character tokens
-	// '=' or '=='
+	// Create one or two-character tokens
 	case '=':
-		return l.addToken(l.match('=', EQUAL_EQUAL, EQUAL), "")
-	// '!' or '!='
+		l.addToken(l.match('=', EQUAL_EQUAL, EQUAL), "")
 	case '!':
-		return l.addToken(l.match('=', BANG_EQUAL, BANG), "")
-	// '<' or '<='
+		l.addToken(l.match('=', BANG_EQUAL, BANG), "")
 	case '<':
-		return l.addToken(l.match('=', LESS_EQUAL, LESS), "")
-	// '>' or '>='
+		l.addToken(l.match('=', LESS_EQUAL, LESS), "")
 	case '>':
-		return l.addToken(l.match('=', GREATER_EQUAL, GREATER), "")
-	}
+		l.addToken(l.match('=', GREATER_EQUAL, GREATER), "")
 
-	l.throwError(fmt.Sprintf("Invalid character '%c'", char))
-	return Token{}
+	// Differentiate betweek SLASH and a comment (which ignores the rest of the line)
+	case '/':
+		if l.peek() == '/' {
+			for l.peek() != '\n' && !l.isAtEnd() {
+				l.advance()
+			}
+			break
+		} else {
+			l.addToken(SLASH, "")
+		}
+
+	// Whitespace and meanginless characters
+	case '\n':
+		l.line++
+	case ' ':
+	case '\r':
+	case '\t':
+
+	// Throw an error for unidentified characters
+	default:
+		l.throwError(fmt.Sprintf("Invalid character '%c'", char))
+	}
 }
 
 // Loops over all characters in souce, creating tokens as it goes, places EOF token at end of source
@@ -140,7 +158,7 @@ func (l *lexer) ScanTokens() ([]Token, bool) {
 
 	for !l.isAtEnd() {
 		l.start = l.current
-		l.tokens = append(l.tokens, l.scanToken())
+		l.scanToken()
 	}
 
 	l.tokens = append(l.tokens, Token{EOF, "EOF", "", l.line})

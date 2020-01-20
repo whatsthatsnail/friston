@@ -14,6 +14,7 @@ const (
 	DOT
 	SEMICOLON
 	STAR
+	SLASH
 
 	// One or two characters
 	EQUAL
@@ -55,24 +56,26 @@ func (t TokenType) typeString() string {
 	case 9:
 		return "STAR"
 	case 10:
-		return "EQUAL"
+		return "SLASH"
 	case 11:
-		return "EQUAL_EQUAL"
+		return "EQUAL"
 	case 12:
-		return "BANG"
+		return "EQUAL_EQUAL"
 	case 13:
-		return "BANG_EQUAL"
+		return "BANG"
 	case 14:
-		return "LESS"
+		return "BANG_EQUAL"
 	case 15:
-		return "LESS_EQUAL"
+		return "LESS"
 	case 16:
-		return "GREATER"
+		return "LESS_EQUAL"
 	case 17:
-		return "GREATER_EQUAL"
+		return "GREATER"
 	case 18:
-		return "NUMBER"
+		return "GREATER_EQUAL"
 	case 19:
+		return "NUMBER"
+	case 20:
 		return "EOF"
 	}
 
