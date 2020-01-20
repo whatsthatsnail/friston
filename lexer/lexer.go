@@ -28,6 +28,7 @@ type lexer struct {
 	line int
 	tokens []Token
 	source string
+	hadError bool
 }
 
 // Lexer constructor, initializes default values
@@ -37,8 +38,20 @@ func NewLexer(code string) lexer {
 	l.current = 0
 	l.line = 1
 	l.source = code
+	l.hadError = false
 
 	return l
+}
+
+// Prints error message and sets error flag
+func (l *lexer) throwError(message string) {
+	l.report(l.line, "Error: " + message)
+	l.hadError = true
+}
+
+// Useable to print any line dependant message (error, warning, etc.)
+func (l *lexer) report(line int, message string) {
+	fmt.Printf("[Line %d] %s\n", line, message)
 }
 
 // Checks if current has reaced the end of the source
@@ -118,11 +131,12 @@ func (l *lexer) scanToken() Token {
 		return l.addToken(l.match('=', GREATER_EQUAL, GREATER), "")
 	}
 
+	l.throwError(fmt.Sprintf("Invalid character '%c'", char))
 	return Token{}
 }
 
 // Loops over all characters in souce, creating tokens as it goes, places EOF token at end of source
-func (l *lexer) ScanTokens() []Token {
+func (l *lexer) ScanTokens() ([]Token, bool) {
 
 	for !l.isAtEnd() {
 		l.start = l.current
@@ -130,5 +144,5 @@ func (l *lexer) ScanTokens() []Token {
 	}
 
 	l.tokens = append(l.tokens, Token{EOF, "EOF", "", l.line})
-	return l.tokens
+	return l.tokens, l.hadError
 }
