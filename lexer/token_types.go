@@ -28,6 +28,7 @@ const (
 
 	// Literals
 	NUMBER
+	STRING
 
 	EOF
 )
@@ -76,6 +77,8 @@ func (t TokenType) typeString() string {
 	case 19:
 		return "NUMBER"
 	case 20:
+		return "STRING"
+	case 21:
 		return "EOF"
 	}
 

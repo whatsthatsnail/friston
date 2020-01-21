@@ -3,20 +3,20 @@ package lexer
 import "fmt"
 
 type Token struct {
-	t_type TokenType
+	tType TokenType
 	lexeme string
 	literal string
 	line int
 }
 
-// Prints tokens in a readable manner
+// Prints tokens in a readable manner as {Token_Type, lexeme, (literal), line}
 func PrintTokens(tokens []Token) {
 	for _, tok := range(tokens) {
 		s := ""
 		if tok.literal == "" {
-			s = fmt.Sprintf("{%s, %s, %d}", tok.t_type.typeString(), tok.lexeme, tok.line)
+			s = fmt.Sprintf("{%s, %s, %d}", tok.tType.typeString(), tok.lexeme, tok.line)
 		} else {
-			s = fmt.Sprintf("{%s, %s, %s, %d}", tok.t_type.typeString(), tok.lexeme, tok.literal, tok.line)
+			s = fmt.Sprintf("{%s, %s, %s, %d}", tok.tType.typeString(), tok.lexeme, tok.literal, tok.line)
 		}
 		fmt.Println(s)
 	}
@@ -50,12 +50,12 @@ func (l *lexer) throwError(message string) {
 	l.hadError = true
 }
 
-// Useable to print any line dependant message (error, warning, etc.)
+// Print any line dependant message (error, warning, etc.)
 func (l *lexer) report(line int, message string) {
 	fmt.Printf("[Line %d] %s\n", line, message)
 }
 
-// Checks if current has reaced the end of the source
+// Checks if current position has reaced the end of the source
 func (l *lexer) isAtEnd() bool {
 	return l.current >= len(l.source)
 }
@@ -87,8 +87,32 @@ func (l *lexer) match(x rune, a TokenType, b TokenType) TokenType {
 }
 
 // Adds a new Token instance to l.tokens using input type and literal, and infered lexeme and line
-func (l *lexer) addToken(t_type TokenType, literal string) {
-	l.tokens = append(l.tokens, Token{t_type, l.source[l.start:l.current], literal, l.line})
+func (l *lexer) addToken(tType TokenType, literal string) {
+	l.tokens = append(l.tokens, Token{tType, l.source[l.start:l.current], literal, l.line})
+}
+
+// Consumes a string literal, including new lines, and creates a STRING token
+func (l *lexer) getString() {
+	for l.peek() != '"' && !l.isAtEnd() {
+		// Handle multi-line comments
+		if l.peek() == '\n' {
+			l.line++
+			l.advance()
+		}
+		// Advance through all characters until reaching the terminating "
+		l.advance()
+	}
+
+	// If we haven't reached the end of l.source, but find terminating "
+	if l.peek() == '"' {
+		// Consume the " and store the STRING token
+		l.advance()
+		literal := l.source[l.start + 1 : l.current - 1]
+		l.addToken(STRING, literal)
+	// If there's no terminating ", throw an error
+	} else {
+		l.throwError("Unterminated sttring")
+	}
 }
 
 // Advances current and adds the current token
@@ -139,13 +163,17 @@ func (l *lexer) scanToken() {
 		} else {
 			l.addToken(SLASH, "")
 		}
-
+	
 	// Whitespace and meanginless characters
 	case '\n':
 		l.line++
 	case ' ':
 	case '\r':
 	case '\t':
+
+	// String literals
+	case '"':
+		l.getString()
 
 	// Throw an error for unidentified characters
 	default:
