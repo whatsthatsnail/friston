@@ -85,6 +85,7 @@ func (l *lexer) peek() rune {
 	return '\n'
 }
 
+// Returns the next character without conuming it, as long as there is anothe character peek
 func (l *lexer) peekNext() rune {
 	if !l.isAtEnd() && !((l.current + 1) > len(l.source) - 1) {
 		return rune(l.source[l.current + 1])
@@ -135,7 +136,7 @@ func (l *lexer) getString() {
 
 // Consumes number literal and creates a NUMBER token
 func (l *lexer) getNumber() {
-	// Advance until end of number (while peek == a digit)
+	// Advance until end of number (while peek == a digit or a dot, as long as there's another number after the dot)
 	for (isDigit(l.peek()) || (l.peek() == '.' && isDigit(l.peekNext()))) && !l.isAtEnd() {
 		l.advance()
 	}
