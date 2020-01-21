@@ -1,7 +1,16 @@
 package lexer
 
-import "fmt"
+import (
+	"fmt"
+)
 
+// Simple helper function to avoid importing a whole module for a one-liner
+func isDigit(r rune) bool {
+	return r >= '0' && r <= '9'
+}
+
+// Note: number literals are still stored as a string, cast as int before use.
+// TODO: Develop a more elegant solution for the above issue.
 type Token struct {
 	tType TokenType
 	lexeme string
@@ -76,6 +85,15 @@ func (l *lexer) peek() rune {
 	return '\n'
 }
 
+func (l *lexer) peekNext() rune {
+	if !l.isAtEnd() && !((l.current + 1) > len(l.source) - 1) {
+		return rune(l.source[l.current + 1])
+	} else {
+		return '\n'
+	}
+	return '\n'
+}
+
 // If peek() == x -> a and advance, else b
 func (l *lexer) match(x rune, a TokenType, b TokenType) TokenType {
 	if l.peek() == x {
@@ -113,6 +131,18 @@ func (l *lexer) getString() {
 	} else {
 		l.throwError("Unterminated sttring")
 	}
+}
+
+// Consumes number literal and creates a NUMBER token
+func (l *lexer) getNumber() {
+	// Advance until end of number (while peek == a digit)
+	for (isDigit(l.peek()) || (l.peek() == '.' && isDigit(l.peekNext()))) && !l.isAtEnd() {
+		l.advance()
+	}
+
+	// Store a NUMBER token
+	number := l.source[l.start:l.current]
+	l.addToken(NUMBER, number)
 }
 
 // Advances current and adds the current token
@@ -175,9 +205,14 @@ func (l *lexer) scanToken() {
 	case '"':
 		l.getString()
 
+	// Check for literals without an identifying characer (numbers and words)
 	// Throw an error for unidentified characters
 	default:
-		l.throwError(fmt.Sprintf("Invalid character '%c'", char))
+		if isDigit(char) {
+			l.getNumber()
+		} else {
+			l.throwError(fmt.Sprintf("Invalid character '%c'", char))
+		}
 	}
 }
 
