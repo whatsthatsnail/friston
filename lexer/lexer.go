@@ -1,7 +1,8 @@
 package lexer
 
 import (
-	"fmt"
+	"fmt";
+	"strconv"
 )
 
 // Simple helper functions to avoid importing a whole module for a one-liner
@@ -14,12 +15,11 @@ func isAlpha(r rune) bool {
 	return (r >= 'A' && r <= 'Z') || (r >= 'a' && r <= 'z') || (r == '_')
 }
 
-// Note: number literals are still stored as a string, cast as int before use.
-// TODO: Develop a more elegant solution for the above issue.
+// Literals stores as empty interface, use type assertions when parsing
 type Token struct {
 	tType TokenType
 	lexeme string
-	literal string
+	literal interface{}
 	line int
 }
 
@@ -27,10 +27,10 @@ type Token struct {
 func PrintTokens(tokens []Token) {
 	for _, tok := range(tokens) {
 		s := ""
-		if tok.literal == "" {
+		if tok.literal == nil {
 			s = fmt.Sprintf("{%s, '%s', %d}", tok.tType.typeString(), tok.lexeme, tok.line)
 		} else {
-			s = fmt.Sprintf("{%s, '%s', %s, %d}", tok.tType.typeString(), tok.lexeme, tok.literal, tok.line)
+			s = fmt.Sprintf("{%s, '%s', %v, %d}", tok.tType.typeString(), tok.lexeme, tok.literal, tok.line)
 		}
 		fmt.Println(s)
 	}
@@ -110,7 +110,7 @@ func (l *lexer) match(x rune, a TokenType, b TokenType) TokenType {
 }
 
 // Adds a new Token instance to l.tokens using input type and literal, and infered lexeme and line
-func (l *lexer) addToken(tType TokenType, literal string) {
+func (l *lexer) addToken(tType TokenType, literal interface{}) {
 	l.tokens = append(l.tokens, Token{tType, l.source[l.start:l.current], literal, l.line})
 }
 
@@ -140,14 +140,24 @@ func (l *lexer) getString() {
 
 // Consumes number literal and creates a NUMBER token
 func (l *lexer) getNumber() {
+
+	floatFlag := false
+
 	// Advance until end of number (while peek == a digit or a dot, as long as there's another number after the dot)
 	for (isDigit(l.peek()) || (l.peek() == '.' && isDigit(l.peekNext()))) && !l.isAtEnd() {
+		if l.peek() == '.' {floatFlag = true}
 		l.advance()
 	}
 
 	// Store a NUMBER token
 	number := l.source[l.start:l.current]
-	l.addToken(NUMBER, number)
+	if floatFlag {
+		num, _ := strconv.ParseFloat(number, 10)
+		l.addToken(NUMBER, num)
+	} else {
+		num, _ := strconv.ParseFloat(number, 10)
+		l.addToken(NUMBER, num)
+	}
 }
 
 func (l *lexer) getWord() {
@@ -197,35 +207,35 @@ func (l *lexer) scanToken() {
 
 	// Creates single-character tokens
 	case '+':
-		l.addToken(PLUS, "")
+		l.addToken(PLUS, nil)
 	case '-':
-		l.addToken(MINUS, "")
+		l.addToken(MINUS, nil)
 	case '(':
-		l.addToken(LEFT_PAREN, "")
+		l.addToken(LEFT_PAREN, nil)
 	case ')':
-		l.addToken(RIGHT_PAREN, "")
+		l.addToken(RIGHT_PAREN, nil)
 	case '{':
-		l.addToken(LEFT_BRACE, "")
+		l.addToken(LEFT_BRACE, nil)
 	case '}':
-		l.addToken(RIGHT_BRACE, "")
+		l.addToken(RIGHT_BRACE, nil)
 	case ',':
-		l.addToken(COMMA, "")
+		l.addToken(COMMA, nil)
 	case ';':
-		l.addToken(SEMICOLON, "")
+		l.addToken(SEMICOLON, nil)
 	case '.':
-		l.addToken(DOT, "")
+		l.addToken(DOT, nil)
 	case '*':
-		l.addToken(STAR, "")
+		l.addToken(STAR, nil)
 
 	// Create one or two-character tokens
 	case '=':
-		l.addToken(l.match('=', EQUAL_EQUAL, EQUAL), "")
+		l.addToken(l.match('=', EQUAL_EQUAL, EQUAL), nil)
 	case '!':
-		l.addToken(l.match('=', BANG_EQUAL, BANG), "")
+		l.addToken(l.match('=', BANG_EQUAL, BANG), nil)
 	case '<':
-		l.addToken(l.match('=', LESS_EQUAL, LESS), "")
+		l.addToken(l.match('=', LESS_EQUAL, LESS), nil)
 	case '>':
-		l.addToken(l.match('=', GREATER_EQUAL, GREATER), "")
+		l.addToken(l.match('=', GREATER_EQUAL, GREATER), nil)
 
 	// Differentiate betweek SLASH and a comment (which ignores the rest of the line)
 	case '/':
@@ -235,9 +245,9 @@ func (l *lexer) scanToken() {
 			}
 			break
 		} else {
-			l.addToken(SLASH, "")
+			l.addToken(SLASH, nil)
 		}
-	
+
 	// Whitespace and meanginless characters
 	case '\n':
 		l.line++
@@ -270,6 +280,6 @@ func (l *lexer) ScanTokens() ([]Token, bool) {
 		l.scanToken()
 	}
 
-	l.tokens = append(l.tokens, Token{EOF, "EOF", "", l.line})
+	l.tokens = append(l.tokens, Token{EOF, "EOF", nil, l.line})
 	return l.tokens, l.hadError
 }
