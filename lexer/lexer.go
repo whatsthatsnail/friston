@@ -4,9 +4,14 @@ import (
 	"fmt"
 )
 
-// Simple helper function to avoid importing a whole module for a one-liner
+// Simple helper functions to avoid importing a whole module for a one-liner
 func isDigit(r rune) bool {
 	return r >= '0' && r <= '9'
+}
+
+// Return underscore as alpha to allow '_' in idenifiers and keywords
+func isAlpha(r rune) bool {
+	return (r >= 'A' && r <= 'Z') || (r >= 'a' && r <= 'z') || (r == '_')
 }
 
 // Note: number literals are still stored as a string, cast as int before use.
@@ -23,9 +28,9 @@ func PrintTokens(tokens []Token) {
 	for _, tok := range(tokens) {
 		s := ""
 		if tok.literal == "" {
-			s = fmt.Sprintf("{%s, %s, %d}", tok.tType.typeString(), tok.lexeme, tok.line)
+			s = fmt.Sprintf("{%s, '%s', %d}", tok.tType.typeString(), tok.lexeme, tok.line)
 		} else {
-			s = fmt.Sprintf("{%s, %s, %s, %d}", tok.tType.typeString(), tok.lexeme, tok.literal, tok.line)
+			s = fmt.Sprintf("{%s, '%s', %s, %d}", tok.tType.typeString(), tok.lexeme, tok.literal, tok.line)
 		}
 		fmt.Println(s)
 	}
@@ -91,7 +96,6 @@ func (l *lexer) peekNext() rune {
 	} else {
 		return '\n'
 	}
-	return '\n'
 }
 
 // If peek() == x -> a and advance, else b
@@ -129,7 +133,7 @@ func (l *lexer) getString() {
 		l.addToken(STRING, literal)
 	// If there's no terminating ", throw an error
 	} else {
-		l.throwError("Unterminated sttring")
+		l.throwError("Unterminated string")
 	}
 }
 
@@ -143,6 +147,45 @@ func (l *lexer) getNumber() {
 	// Store a NUMBER token
 	number := l.source[l.start:l.current]
 	l.addToken(NUMBER, number)
+}
+
+func (l *lexer) getWord() {
+	// Advance to en of word
+	for (isAlpha(l.peek()) && !l.isAtEnd()) {
+		l.advance()
+	}
+
+	// Store word lexeme
+	word := l.source[l.start:l.current]
+
+	switch keywords[word] {
+	case AND:
+		l.addToken(AND, word)
+	case CLASS:
+		l.addToken(CLASS, word)
+	case ELSE:
+		l.addToken(ELSE, word)
+	case FALSE:
+		l.addToken(FALSE, word)
+	case FOR:
+		l.addToken(FOR, word)
+	case FUNC:
+		l.addToken(FUNC, word)
+	case IF:
+		l.addToken(IF, word)
+	case OR:
+		l.addToken(OR, word)
+	case THIS:
+		l.addToken(THIS, word)
+	case TRUE:
+		l.addToken(TRUE, word)
+	case VAR:
+		l.addToken(VAR, word)
+	case WHILE:
+		l.addToken(WHILE, word)
+	default:
+		l.addToken(IDENTIFIER, word)
+	}
 }
 
 // Advances current and adds the current token
@@ -210,6 +253,8 @@ func (l *lexer) scanToken() {
 	default:
 		if isDigit(char) {
 			l.getNumber()
+		} else if isAlpha(char){
+			l.getWord()
 		} else {
 			l.throwError(fmt.Sprintf("Invalid character '%c'", char))
 		}
