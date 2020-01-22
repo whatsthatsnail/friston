@@ -2,6 +2,7 @@ package lexer
 
 // Declare constant names for TokenTypes, use iota to increment values
 type TokenType int
+
 const (
 	// Single-character
 	PLUS TokenType = iota
@@ -29,9 +30,40 @@ const (
 	// Literals
 	NUMBER
 	STRING
+	IDENTIFIER
+
+	// Reserved keywords
+	AND
+	CLASS
+	ELSE
+	FALSE
+	FOR
+	FUNC
+	IF
+	OR
+	THIS
+	TRUE
+	VAR
+	WHILE
 
 	EOF
 )
+
+var keywords = map[string]TokenType{
+	"and" : AND,
+	"class" : CLASS,
+	"else" : ELSE,
+	"false" : FALSE,
+	"for" : FOR,
+	"func" : FUNC,
+	"if" : IF,
+	"or" : OR,
+	"this" : THIS,
+	"true" : TRUE,
+	"var" : VAR,
+	"while" : WHILE,
+}
+
 
 // Ugly, ugly method to retun string type names from TokenType constants (I hate it)
 func (t TokenType) typeString() string {
@@ -79,6 +111,32 @@ func (t TokenType) typeString() string {
 	case 20:
 		return "STRING"
 	case 21:
+		return "IDENTIFIER"
+	case 22:
+		return "AND"
+	case 23:
+		return "CLASS"
+	case 24:
+		return "ELSE"
+	case 25:
+		return "FALSE"
+	case 26:
+		return "FOR"
+	case 27:
+		return "FUNC"
+	case 28:
+		return "IF"
+	case 29:
+		return "OR"
+	case 30:
+		return "THIS"
+	case 31:
+		return "TRUE"
+	case 32:
+		return "VAR"
+	case 33:
+		return "WHILE"
+	case 34:
 		return "EOF"
 	}
 
