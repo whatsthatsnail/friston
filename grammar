@@ -1,0 +1,24 @@
+Syntax:
+    CAPITALIZE terminals with variable literals
+    "quote" terminals with exact lexemes (no literal)
+    | or
+    * zero or more
+
+expression -> literal
+            | unary
+            | binary
+            | grouping ;
+
+literal    -> STRING
+            | NUMBER
+            | "true"
+            | "false"
+            | "nil" ;
+
+unary      -> ("-" | "!") expression ;
+
+binary     -> expression operator expression ;
+
+grouping   -> "(" expression ")" ;
+
+operator   -> ("+" | "-" | "*" | "/") ;
