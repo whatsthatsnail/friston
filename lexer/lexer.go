@@ -23,6 +23,15 @@ type Token struct {
 	line int
 }
 
+// Allow literals to be used when creating AST without exporting it
+func (t Token) GetLiteral() interface{} {
+	return t.literal
+}
+
+func NewToken(tType TokenType, lexeme string, literal interface{}, line int) Token {
+	return Token{tType, lexeme, literal, line}
+}
+
 // Prints tokens in a readable manner as {Token_Type, lexeme, (literal), line}
 func PrintTokens(tokens []Token) {
 	for _, tok := range(tokens) {
