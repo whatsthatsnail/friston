@@ -12,7 +12,7 @@ import (
 func main() {
 	args := os.Args[2:]
 
-	if args[0] == "test" {
+	if args[0] == "ast_test" {
 		ast.Test()
 	} else if len(args) >= 1 && args[0] == "repl" {
 		repl()

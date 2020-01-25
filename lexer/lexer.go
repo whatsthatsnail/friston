@@ -28,6 +28,11 @@ func (t Token) GetLiteral() interface{} {
 	return t.literal
 }
 
+// Same as above but for lexemes
+func (t Token) GetLexeme() string {
+	return t.lexeme
+}
+
 func NewToken(tType TokenType, lexeme string, literal interface{}, line int) Token {
 	return Token{tType, lexeme, literal, line}
 }
