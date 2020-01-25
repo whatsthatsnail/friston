@@ -83,29 +83,3 @@ type Grouping struct {
 func (g Grouping) accept(v Visitor) {
 	v.visitGrouping(g)
 }
-
-// Testing:
-
-func Test() {
-	tok1 := lexer.NewToken(lexer.MINUS, "-", nil, 1)
-	tok2 := lexer.NewToken(lexer.NUMBER, "123", 123, 1)
-	tok3 := lexer.NewToken(lexer.STAR, "*", nil, 1)
-	tok4 := lexer.NewToken(lexer.NUMBER, "45.67", 45.67, 1)
-
-	tok5 := lexer.NewToken(lexer.LEFT_PAREN, "(", nil, 1)
-	tok6 := lexer.NewToken(lexer.RIGHT_PAREN, ")", nil, 1)
-
-	lit1 := Literal{tok4}
-	lit2 := Literal{tok2}
-
-	un1 := Unary{tok1, lit2}
-
-	grp1 := Grouping{tok5, lit1, tok6}
-
-	bin1 := Binary{un1, tok3, grp1}
-
-	printer := ASTprinter{}
-
-	bin1.accept(printer)
-	fmt.Println()
-}

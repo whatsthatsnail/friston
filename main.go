@@ -4,17 +4,14 @@ import (
 	"fmt";
 	"os";
 	"io/ioutil";
-	"github.com/whatsthatsnail/simple_interpreter/lexer";
-	"github.com/whatsthatsnail/simple_interpreter/ast"
+	"github.com/whatsthatsnail/simple_interpreter/lexer"
 )
 
 // Gets arguments when using 'go run *.go -- ...'
 func main() {
 	args := os.Args[2:]
 
-	if args[0] == "ast_test" {
-		ast.Test()
-	} else if len(args) >= 1 && args[0] == "repl" {
+	if len(args) >= 1 && args[0] == "repl" {
 		repl()
 	} else if len(args) >= 2 && args[0] == "file" {
 		file(args[1], false)
