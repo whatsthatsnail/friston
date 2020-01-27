@@ -4,7 +4,9 @@ import (
 	"fmt";
 	"os";
 	"io/ioutil";
-	"github.com/whatsthatsnail/simple_interpreter/lexer"
+	"bufio";
+	"github.com/whatsthatsnail/simple_interpreter/lexer";
+	"github.com/whatsthatsnail/simple_interpreter/type_generator"
 )
 
 // Gets arguments when using 'go run *.go -- ...'
@@ -15,6 +17,8 @@ func main() {
 		repl()
 	} else if len(args) >= 2 && args[0] == "file" {
 		file(args[1], false)
+	} else if len(args) >= 2 && args[0] == "genAST" {
+		genASTSource(args[1])
 	} else if len(args) >= 3 && args[0] == "file" && args[2] == "-q" {
 		file(args[1], true)
 	} else {
@@ -50,4 +54,22 @@ func file(path string, quiet bool) {
 	if !errflag{
 		lexer.PrintTokens(tokens)
 	}
+}
+
+func genASTSource(path string) {
+	dat, err := os.Open(path)
+	check(err)
+
+	scanner := bufio.NewScanner(dat)
+	scanner.Split(bufio.ScanLines)
+
+	var lines []string
+
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+
+	dat.Close()
+
+	type_generator.GenASTTypes(lines)
 }
