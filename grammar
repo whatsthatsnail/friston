@@ -4,21 +4,18 @@ Syntax:
     | or
     * zero or more
 
-expression -> literal
-            | unary
-            | binary
-            | grouping ;
+expression      -> equality
 
-literal    -> STRING
-            | NUMBER
-            | "true"
-            | "false"
-            | "nil" ;
+equality        -> comparison ( ("==" | "!=") comparison)* ;
 
-unary      -> ("-" | "!") expression ;
+comparison      -> addition ( ("<" | "<=" | ">" | ">=") addition)* ;
 
-binary     -> expression operator expression ;
+addition        -> multiplication ( ("+" | "-") multiplication )* ;
 
-grouping   -> "(" expression ")" ;
+multiplication  -> unary ( ("*" | "/") unary )* ;
 
-operator   -> ("+" | "-" | "*" | "/") ;
+unary           -> ("-" | "!") unary 
+                | primary ;
+
+primary         -> NUMBER | STRING | "true" | "false" | "nil"
+                | "(" expression ")" ;

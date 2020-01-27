@@ -25,6 +25,7 @@ func GenASTTypes(types []string) {
 	// User specified nodes:
 	for _, s := range(types) {
 		// Struct:
+		// TODO: Auto generate fields
 		fmt.Printf("type %s struct {\n\t// TODO: define fields\n}\n\n", s)
 		// accept(v Visitor):
 		fmt.Printf("func (%s %s) accept(v Visitor) {\n\t v.visit%s(%s)\n}\n\n", strings.ToLower(string(s[0])), s, s, strings.ToLower(string(s[0])))
