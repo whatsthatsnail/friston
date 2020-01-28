@@ -7,6 +7,7 @@ import (
 )
 
 // An ugly, ugly, function to create a complete ast.go source file from an input of tokens.
+// TODO: Hangle package reference in field types ex:"lexer.Token"
 func GenerateNodeTypes(tokens []lexer.Token) {
 	
 	// Print package and imports

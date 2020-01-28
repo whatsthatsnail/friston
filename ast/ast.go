@@ -19,9 +19,9 @@ type Expression interface {
 }
 
 type Equality struct {
-	x Expression
-	op Token
-	y Expression
+	X Expression
+	Op lexer.Token
+	Y Expression
 }
 
 func (e Equality) accept(v Visitor) {
@@ -29,9 +29,9 @@ func (e Equality) accept(v Visitor) {
 }
 
 type Comparison struct {
-	x Expression
-	op Token
-	y Expression
+	X Expression
+	Op lexer.Token
+	Y Expression
 }
 
 func (c Comparison) accept(v Visitor) {
@@ -39,9 +39,9 @@ func (c Comparison) accept(v Visitor) {
 }
 
 type Comparison struct {
-	x Expression
-	op Token
-	y Expression
+	X Expression
+	Op lexer.Token
+	Y Expression
 }
 
 func (c Comparison) accept(v Visitor) {
@@ -49,9 +49,9 @@ func (c Comparison) accept(v Visitor) {
 }
 
 type Addition struct {
-	x Expression
-	op Token
-	y Expression
+	X Expression
+	Op lexer.Token
+	Y Expression
 }
 
 func (a Addition) accept(v Visitor) {
@@ -59,9 +59,9 @@ func (a Addition) accept(v Visitor) {
 }
 
 type Multiplication struct {
-	x Expression
-	op Token
-	y Expression
+	X Expression
+	Op lexer.Token
+	Y Expression
 }
 
 func (m Multiplication) accept(v Visitor) {
@@ -69,8 +69,8 @@ func (m Multiplication) accept(v Visitor) {
 }
 
 type Unary struct {
-	x Expression
-	op Token
+	Op lexer.Token
+	X Expression
 }
 
 func (u Unary) accept(v Visitor) {
@@ -78,7 +78,7 @@ func (u Unary) accept(v Visitor) {
 }
 
 type Primary struct {
-	x Token
+	X lexer.Token
 }
 
 func (p Primary) accept(v Visitor) {

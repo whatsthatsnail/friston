@@ -48,9 +48,9 @@ func file(path string, quiet bool) {
 	}
 
 	scanner := lexer.NewLexer(string(dat))
-	tokens, errflag := scanner.ScanTokens()
+	tokens, errFlag := scanner.ScanTokens()
 
-	if !errflag{
+	if !errFlag{
 		lexer.PrintTokens(tokens)
 	}
 }
@@ -60,9 +60,9 @@ func genASTSource(path string) {
 	check(err)
 
 	scanner := lexer.NewLexer(string(dat))
-	tokens, errflag := scanner.ScanTokens()
+	tokens, errFlag := scanner.ScanTokens()
 
-	if !errflag{
+	if !errFlag{
 		type_generator.GenerateNodeTypes(tokens)
 	}
 }
