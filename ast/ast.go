@@ -1,85 +1,86 @@
 package ast
 
-import (
-	"github.com/whatsthatsnail/simple_interpreter/lexer";
-	"fmt"
-)
+import "github.com/whatsthatsnail/simple_interpreter/lexer"
 
-// Visitors:
-
+// Visitor interface (all other visitors must implement this)
 type Visitor interface {
-	visitLiteral(l Literal)
+	visitEquality(e Equality)
+	visitComparison(c Comparison)
+	visitComparison(c Comparison)
+	visitAddition(a Addition)
+	visitMultiplication(m Multiplication)
 	visitUnary(u Unary)
-	visitBinary(b Binary)
-	visitGrouping(g Grouping)
+	visitPrimary(p Primary)
 }
 
-// Print an AST tree in a reasonable manner
-type ASTprinter struct {}
-
-func (a ASTprinter) visitLiteral(l Literal) {
-	fmt.Print(l.x.GetLiteral())
-}
-
-func (a ASTprinter) visitUnary(u Unary) {
-	fmt.Print(" (")
-	fmt.Print(u.op.GetLexeme() + " ")
-	u.x.accept(a)
-	fmt.Print(")")
-}
-
-func (a ASTprinter) visitBinary(b Binary) {
-	fmt.Print(" (" + b.op.GetLexeme())
-	b.x.accept(a)
-	b.y.accept(a)
-	fmt.Print(")")
-}
-
-func (a ASTprinter) visitGrouping(g Grouping) {
-	fmt.Print(" (group ")
-	g.x.accept(a)
-	fmt.Print(")")
-}
-
-// Nodes:
-
+// Node types:
 type Expression interface {
 	accept(v Visitor)
 }
 
-type Literal struct {
-	x lexer.Token
-}
-
-func (l Literal) accept(v Visitor) {
-	v.visitLiteral(l)
-}
-
-type Unary struct {
-	op lexer.Token
+type Equality struct {
 	x Expression
-}
-
-func (u Unary) accept(v Visitor) {
-	v.visitUnary(u)
-}
-
-type Binary struct {
-	x Expression
-	op lexer.Token
+	op Token
 	y Expression
 }
 
-func (b Binary) accept(v Visitor) {
-	v.visitBinary(b)
+func (e Equality) accept(v Visitor) {
+	 v.visitEquality(e)
 }
 
-type Grouping struct {
-	left lexer.Token
+type Comparison struct {
 	x Expression
-	right lexer.Token
+	op Token
+	y Expression
 }
 
-func (g Grouping) accept(v Visitor) {
-	v.visitGrouping(g)
+func (c Comparison) accept(v Visitor) {
+	 v.visitComparison(c)
+}
+
+type Comparison struct {
+	x Expression
+	op Token
+	y Expression
+}
+
+func (c Comparison) accept(v Visitor) {
+	 v.visitComparison(c)
+}
+
+type Addition struct {
+	x Expression
+	op Token
+	y Expression
+}
+
+func (a Addition) accept(v Visitor) {
+	 v.visitAddition(a)
+}
+
+type Multiplication struct {
+	x Expression
+	op Token
+	y Expression
+}
+
+func (m Multiplication) accept(v Visitor) {
+	 v.visitMultiplication(m)
+}
+
+type Unary struct {
+	x Expression
+	op Token
+}
+
+func (u Unary) accept(v Visitor) {
+	 v.visitUnary(u)
+}
+
+type Primary struct {
+	x Token
+}
+
+func (p Primary) accept(v Visitor) {
+	 v.visitPrimary(p)
 }

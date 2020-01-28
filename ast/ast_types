@@ -1,6 +1,25 @@
-Equality
-Comparison
-Addition
-Multiplication
-Unary
-Primary
+Equality:
+    x = Expression;
+    op = Token;
+    y = Expression;
+Comparison:
+    x = Expression;
+    op = Token;
+    y = Expression;
+Comparison:
+    x = Expression;
+    op = Token;
+    y = Expression;
+Addition:
+    x = Expression;
+    op = Token;
+    y = Expression;
+Multiplication:
+    x = Expression;
+    op = Token;
+    y = Expression;
+Unary:
+    x = Expression;
+    op = Token;
+Primary:
+    x = Token;

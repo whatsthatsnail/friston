@@ -4,7 +4,6 @@ import (
 	"fmt";
 	"os";
 	"io/ioutil";
-	"bufio";
 	"github.com/whatsthatsnail/simple_interpreter/lexer";
 	"github.com/whatsthatsnail/simple_interpreter/type_generator"
 )
@@ -17,7 +16,7 @@ func main() {
 		repl()
 	} else if len(args) >= 2 && args[0] == "file" {
 		file(args[1], false)
-	} else if len(args) >= 2 && args[0] == "genAST" {
+	} else if len(args) >= 2 && args[0] == "GenASTSource" {
 		genASTSource(args[1])
 	} else if len(args) >= 3 && args[0] == "file" && args[2] == "-q" {
 		file(args[1], true)
@@ -57,19 +56,13 @@ func file(path string, quiet bool) {
 }
 
 func genASTSource(path string) {
-	dat, err := os.Open(path)
+	dat, err := ioutil.ReadFile(path)
 	check(err)
 
-	scanner := bufio.NewScanner(dat)
-	scanner.Split(bufio.ScanLines)
+	scanner := lexer.NewLexer(string(dat))
+	tokens, errflag := scanner.ScanTokens()
 
-	var lines []string
-
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
+	if !errflag{
+		type_generator.GenerateNodeTypes(tokens)
 	}
-
-	dat.Close()
-
-	type_generator.GenASTTypes(lines)
 }

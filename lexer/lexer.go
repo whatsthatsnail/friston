@@ -33,6 +33,11 @@ func (t Token) GetLexeme() string {
 	return t.lexeme
 }
 
+// Same as above but for lexemes
+func (t Token) GetType() TokenType {
+	return t.tType
+}
+
 func NewToken(tType TokenType, lexeme string, literal interface{}, line int) Token {
 	return Token{tType, lexeme, literal, line}
 }
@@ -236,6 +241,8 @@ func (l *lexer) scanToken() {
 		l.addToken(COMMA, nil)
 	case ';':
 		l.addToken(SEMICOLON, nil)
+	case ':':
+		l.addToken(COLON, nil)
 	case '.':
 		l.addToken(DOT, nil)
 	case '*':

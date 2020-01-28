@@ -14,6 +14,7 @@ const (
 	COMMA
 	DOT
 	SEMICOLON
+	COLON
 	STAR
 	SLASH
 
@@ -87,56 +88,58 @@ func (t TokenType) typeString() string {
 	case 8:
 		return "SEMICOLON"
 	case 9:
-		return "STAR"
+		return "COLON"
 	case 10:
-		return "SLASH"
+		return "STAR"
 	case 11:
-		return "EQUAL"
+		return "SLASH"
 	case 12:
-		return "EQUAL_EQUAL"
+		return "EQUAL"
 	case 13:
-		return "BANG"
+		return "EQUAL_EQUAL"
 	case 14:
-		return "BANG_EQUAL"
+		return "BANG"
 	case 15:
-		return "LESS"
+		return "BANG_EQUAL"
 	case 16:
-		return "LESS_EQUAL"
+		return "LESS"
 	case 17:
-		return "GREATER"
+		return "LESS_EQUAL"
 	case 18:
-		return "GREATER_EQUAL"
+		return "GREATER"
 	case 19:
-		return "NUMBER"
+		return "GREATER_EQUAL"
 	case 20:
-		return "STRING"
+		return "NUMBER"
 	case 21:
-		return "IDENTIFIER"
+		return "STRING"
 	case 22:
-		return "AND"
+		return "IDENTIFIER"
 	case 23:
-		return "CLASS"
+		return "AND"
 	case 24:
-		return "ELSE"
+		return "CLASS"
 	case 25:
-		return "FALSE"
+		return "ELSE"
 	case 26:
-		return "FOR"
+		return "FALSE"
 	case 27:
-		return "FUNC"
+		return "FOR"
 	case 28:
-		return "IF"
+		return "FUNC"
 	case 29:
-		return "OR"
+		return "IF"
 	case 30:
-		return "THIS"
+		return "OR"
 	case 31:
-		return "TRUE"
+		return "THIS"
 	case 32:
-		return "VAR"
+		return "TRUE"
 	case 33:
-		return "WHILE"
+		return "VAR"
 	case 34:
+		return "WHILE"
+	case 35:
 		return "EOF"
 	}
 
