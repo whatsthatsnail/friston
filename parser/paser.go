@@ -44,7 +44,7 @@ func (p *parser) previous() lexer.Token {
 // Advance the current position and return the current token.
 func (p *parser) advance() lexer.Token {
 	if !p.isAtEnd() {
-		p.current =+ 1
+		p.current++
 		return p.previous()
 	} else {
 		return p.tokens[p.current]
@@ -54,7 +54,7 @@ func (p *parser) advance() lexer.Token {
 // Compare the type of the current token to a given TokenType.
 func (p *parser) check(tType lexer.TokenType) bool {
 	if !p.isAtEnd() {
-		return p.peek().TType == tType 
+		return p.peek().TType == tType
 	} else {
 		return false
 	}
@@ -72,8 +72,8 @@ func (p *parser) match(tTypes []lexer.TokenType) bool {
 	return false
 }
 
-// Node creator methods: 
-// Each method calls a method of higher precedence if possible, 
+// Node creator methods:
+// Each method calls a method of higher precedence if possible,
 // so high precedence expressions are evaluated first.
 func (p *parser) expresssion() ast.Expression {
 	return p.equality()
@@ -85,7 +85,7 @@ func (p *parser) equality() ast.Expression {
 	for p.match([]lexer.TokenType{lexer.BANG_EQUAL, lexer.EQUAL}) {
 		operator := p.previous()
 		right := p.comparison()
-		expr = ast.Equality{right, operator, expr}
+		expr = ast.Equality{expr, operator, right}
 	}
 
 	return expr
@@ -97,7 +97,7 @@ func (p *parser) comparison() ast.Expression {
 	for p.match([]lexer.TokenType{lexer.LESS, lexer.LESS_EQUAL, lexer.GREATER, lexer.GREATER_EQUAL}) {
 		operator := p.previous()
 		right := p.addition()
-		expr = ast.Equality{right, operator, expr}
+		expr = ast.Equality{expr, operator, right}
 	}
 
 	return expr
@@ -109,7 +109,7 @@ func (p *parser) addition() ast.Expression {
 	for p.match([]lexer.TokenType{lexer.PLUS, lexer.MINUS}) {
 		operator := p.previous()
 		right := p.multiplication()
-		expr = ast.Equality{right, operator, expr}
+		expr = ast.Equality{expr, operator, right}
 	}
 
 	return expr
@@ -121,7 +121,7 @@ func (p *parser) multiplication() ast.Expression {
 	for p.match([]lexer.TokenType{lexer.STAR, lexer.SLASH}) {
 		operator := p.previous()
 		right := p.unary()
-		expr = ast.Equality{right, operator, expr}
+		expr = ast.Equality{expr, operator, right}
 	}
 
 	return expr
@@ -139,9 +139,9 @@ func (p *parser) unary() ast.Expression {
 
 func (p *parser) primary() ast.Expression {
 	if p.match([]lexer.TokenType{lexer.TRUE, lexer.FALSE, lexer.NIL}) {
-		return ast.Literal{p.advance()}
+		return ast.Literal{p.previous()}
 	} else if p.match([]lexer.TokenType{lexer.NUMBER, lexer.STRING}) {
-		return ast.Literal{p.advance()}
+		return ast.Literal{p.previous()}
 	} else if p.match([]lexer.TokenType{lexer.LEFT_PAREN}) {
 		left := p.previous()
 		expr := p.expresssion()
@@ -174,7 +174,7 @@ func (p *parser) synchronize() {
 
 	for !p.isAtEnd() {
 		if p.previous().TType == lexer.SEMICOLON {
-			return 
+			return
 		}
 	}
 }

@@ -15,7 +15,7 @@ type Visitor interface {
 
 // Node types:
 type Expression interface {
-	accept(v Visitor)
+	Accept(v Visitor)
 }
 
 type Equality struct {
@@ -24,7 +24,7 @@ type Equality struct {
 	Y Expression
 }
 
-func (e Equality) accept(v Visitor) {
+func (e Equality) Accept(v Visitor) {
 	 v.visitEquality(e)
 }
 
@@ -34,7 +34,7 @@ type Comparison struct {
 	Y Expression
 }
 
-func (c Comparison) accept(v Visitor) {
+func (c Comparison) Accept(v Visitor) {
 	 v.visitComparison(c)
 }
 
@@ -44,7 +44,7 @@ type Addition struct {
 	Y Expression
 }
 
-func (a Addition) accept(v Visitor) {
+func (a Addition) Accept(v Visitor) {
 	 v.visitAddition(a)
 }
 
@@ -54,7 +54,7 @@ type Multiplication struct {
 	Y Expression
 }
 
-func (m Multiplication) accept(v Visitor) {
+func (m Multiplication) Accept(v Visitor) {
 	 v.visitMultiplication(m)
 }
 
@@ -63,7 +63,7 @@ type Unary struct {
 	X Expression
 }
 
-func (u Unary) accept(v Visitor) {
+func (u Unary) Accept(v Visitor) {
 	 v.visitUnary(u)
 }
 
@@ -73,7 +73,7 @@ type Group struct {
 	Right lexer.Token
 }
 
-func (g Group) accept(v Visitor) {
+func (g Group) Accept(v Visitor) {
 	 v.visitGroup(g)
 }
 
@@ -81,6 +81,6 @@ type Literal struct {
 	X lexer.Token
 }
 
-func (l Literal) accept(v Visitor) {
+func (l Literal) Accept(v Visitor) {
 	 v.visitLiteral(l)
 }

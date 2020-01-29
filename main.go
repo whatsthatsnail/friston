@@ -6,7 +6,8 @@ import (
 	"io/ioutil";
 	"github.com/whatsthatsnail/simple_interpreter/lexer";
 	"github.com/whatsthatsnail/simple_interpreter/type_generator";
-	"github.com/whatsthatsnail/simple_interpreter/parser"
+	"github.com/whatsthatsnail/simple_interpreter/parser";
+	"github.com/whatsthatsnail/simple_interpreter/ast";
 )
 
 // Gets arguments when using 'go run *.go -- ...'
@@ -55,7 +56,10 @@ func file(path string, quiet bool) {
 		lexer.PrintTokens(tokens)
 		par := parser.NewParser(tokens)
 		expr := par.Parse()
-		fmt.Println(expr)
+		printer := ast.ASTPrinter{}
+		fmt.Println()
+		expr.Accept(printer)
+		fmt.Printf("\n\n")
 	}
 }
 
