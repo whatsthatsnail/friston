@@ -17,8 +17,8 @@ func GenerateNodeTypes(tokens []lexer.Token) {
 	fmt.Println("// Visitor interface (all other visitors must implement this)")
 	fmt.Println("type Visitor interface {")
 	for i, token := range(tokens) {
-		if token.GetType() != lexer.EOF && tokens[i + 1].GetType() == lexer.COLON {
-			s := token.GetLexeme()
+		if token.TType != lexer.EOF && tokens[i + 1].TType == lexer.COLON {
+			s := token.Lexeme
 			fmt.Printf("\tvisit%s(%s %s)\n", s, strings.ToLower(string(s[0])), s)
 		}
 	}
@@ -33,8 +33,8 @@ func GenerateNodeTypes(tokens []lexer.Token) {
 	for i, token := range(tokens) {
 		var nextType lexer.TokenType
 
-		if token.GetType() != lexer.EOF {
-			nextType = tokens[i + 1].GetType() 
+		if token.TType != lexer.EOF {
+			nextType = tokens[i + 1].TType 
 		} else {
 			fmt.Printf("}\n\n")
 			fmt.Printf("func (%s %s) accept(v Visitor) {\n\t v.visit%s(%s)\n}\n", strings.ToLower(string(currentNode[0])), currentNode, currentNode, strings.ToLower(string(currentNode[0])))
@@ -46,12 +46,12 @@ func GenerateNodeTypes(tokens []lexer.Token) {
 				fmt.Printf("func (%s %s) accept(v Visitor) {\n\t v.visit%s(%s)\n}\n\n", strings.ToLower(string(currentNode[0])), currentNode, currentNode, strings.ToLower(string(currentNode[0])))
 			}
 
-			currentNode = token.GetLexeme()
+			currentNode = token.Lexeme
 			fmt.Printf("type %s struct {\n", currentNode)
 		} else if nextType == lexer.EQUAL {
-			fmt.Printf("\t%s ", token.GetLexeme())
+			fmt.Printf("\t%s ", token.Lexeme)
 		} else if nextType == lexer.SEMICOLON {
-			fmt.Printf("%s\n", token.GetLexeme())
+			fmt.Printf("%s\n", token.Lexeme)
 		}
 	}
 }

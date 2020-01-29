@@ -2,7 +2,8 @@ package lexer
 
 import (
 	"fmt";
-	"strconv"
+	"strconv";
+	"github.com/whatsthatsnail/simple_interpreter/errors"
 )
 
 // Simple helper functions to avoid importing a whole module for a one-liner
@@ -17,39 +18,20 @@ func isAlpha(r rune) bool {
 
 // Literals stores as empty interface, use type assertions when parsing
 type Token struct {
-	tType TokenType
-	lexeme string
-	literal interface{}
-	line int
-}
-
-// Allow literals to be used when creating AST without exporting it
-func (t Token) GetLiteral() interface{} {
-	return t.literal
-}
-
-// Same as above but for lexemes
-func (t Token) GetLexeme() string {
-	return t.lexeme
-}
-
-// Same as above but for lexemes
-func (t Token) GetType() TokenType {
-	return t.tType
-}
-
-func NewToken(tType TokenType, lexeme string, literal interface{}, line int) Token {
-	return Token{tType, lexeme, literal, line}
+	TType TokenType
+	Lexeme string
+	Literal interface{}
+	Line int
 }
 
 // Prints tokens in a readable manner as {Token_Type, lexeme, (literal), line}
 func PrintTokens(tokens []Token) {
 	for _, tok := range(tokens) {
 		s := ""
-		if tok.literal == nil {
-			s = fmt.Sprintf("{%s, '%s', %d}", tok.tType.typeString(), tok.lexeme, tok.line)
+		if tok.Literal == nil {
+			s = fmt.Sprintf("{%s, '%s', %d}", tok.TType.typeString(), tok.Lexeme, tok.Line)
 		} else {
-			s = fmt.Sprintf("{%s, '%s', %v, %d}", tok.tType.typeString(), tok.lexeme, tok.literal, tok.line)
+			s = fmt.Sprintf("{%s, '%s', %v, %d}", tok.TType.typeString(), tok.Lexeme, tok.Literal, tok.Line)
 		}
 		fmt.Println(s)
 	}
@@ -76,16 +58,10 @@ func NewLexer(code string) lexer {
 	return l
 }
 
-// TODO: Report column of error, print line of error, etc.
-// Prints error message and sets error flag
+// Error handling:
 func (l *lexer) throwError(message string) {
-	l.report(l.line, "Error: " + message)
+	errors.ThrowError(l.line, message)
 	l.hadError = true
-}
-
-// Print any line dependant message (error, warning, etc.)
-func (l *lexer) report(line int, message string) {
-	fmt.Printf("[Line %d] %s\n", line, message)
 }
 
 // Checks if current position has reaced the end of the source
@@ -203,6 +179,8 @@ func (l *lexer) getWord() {
 		l.addToken(FUNC, word)
 	case IF:
 		l.addToken(IF, word)
+	case NIL:
+		l.addToken(NIL, nil)
 	case OR:
 		l.addToken(OR, word)
 	case THIS:

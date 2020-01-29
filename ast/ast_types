@@ -6,10 +6,6 @@ Comparison:
     X = Expression;
     Op = Token;
     Y = Expression;
-Comparison:
-    X = Expression;
-    Op = Token;
-    Y = Expression;
 Addition:
     X = Expression;
     Op = Token;
@@ -21,5 +17,9 @@ Multiplication:
 Unary:
     Op = Token;
     X = Expression;
-Primary:
+Group:
+    Left = Token;
+    X = Expression;
+    Right = Token;
+Literal:
     X = Token;
