@@ -1,7 +1,8 @@
 package main
 
 import (
-	"fmt";
+	"fmt"
+	"bufio";
 	"os";
 	"io/ioutil";
 	"github.com/whatsthatsnail/simple_interpreter/lexer";
@@ -12,7 +13,11 @@ import (
 
 // Gets arguments when using 'go run *.go -- ...'
 func main() {
-	args := os.Args[2:]
+	
+	var args []string
+	if len(os.Args) > 2 {
+		args = os.Args[2:]
+	}
 
 	if len(args) >= 1 && args[0] == "repl" {
 		repl()
@@ -36,7 +41,30 @@ func check(err error) {
 
 // TODO: Implement a REPL
 func repl() {
-	fmt.Println("Entering REPL:")
+	fmt.Printf("Entering REPL:\n>> ")
+
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		line := scanner.Text()
+		
+		if line == "exit" {
+			os.Exit(0)
+		}
+		
+		lex := lexer.NewLexer(line)
+		tokens, errFlag := lex.ScanTokens()
+		
+		if !errFlag {
+			par := parser.NewParser(tokens)
+			expr := par.Parse()
+
+			interpreter := ast.Interpreter{}
+			out := expr.Accept(interpreter)
+			if out != nil { 
+				fmt.Printf("%v\n>> ", out)
+			}
+		}
+	}
 }
 
 // Reads file into lexer, tokenizes, and prints tokens
@@ -49,8 +77,8 @@ func file(path string, quiet bool) {
 		fmt.Println(string(dat) + "\n")
 	}
 
-	scanner := lexer.NewLexer(string(dat))
-	tokens, errFlag := scanner.ScanTokens()
+	lex := lexer.NewLexer(string(dat))
+	tokens, errFlag := lex.ScanTokens()
 
 	if !errFlag{
 		lexer.PrintTokens(tokens)
