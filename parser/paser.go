@@ -85,7 +85,7 @@ func (p *parser) equality() ast.Expression {
 	for p.match([]lexer.TokenType{lexer.BANG_EQUAL, lexer.EQUAL}) {
 		operator := p.previous()
 		right := p.comparison()
-		expr = ast.Equality{expr, operator, right}
+		expr = ast.Binary{expr, operator, right}
 	}
 
 	return expr
@@ -97,7 +97,7 @@ func (p *parser) comparison() ast.Expression {
 	for p.match([]lexer.TokenType{lexer.LESS, lexer.LESS_EQUAL, lexer.GREATER, lexer.GREATER_EQUAL}) {
 		operator := p.previous()
 		right := p.addition()
-		expr = ast.Equality{expr, operator, right}
+		expr = ast.Binary{expr, operator, right}
 	}
 
 	return expr
@@ -109,7 +109,7 @@ func (p *parser) addition() ast.Expression {
 	for p.match([]lexer.TokenType{lexer.PLUS, lexer.MINUS}) {
 		operator := p.previous()
 		right := p.multiplication()
-		expr = ast.Equality{expr, operator, right}
+		expr = ast.Binary{expr, operator, right}
 	}
 
 	return expr
@@ -121,7 +121,7 @@ func (p *parser) multiplication() ast.Expression {
 	for p.match([]lexer.TokenType{lexer.STAR, lexer.SLASH}) {
 		operator := p.previous()
 		right := p.unary()
-		expr = ast.Equality{expr, operator, right}
+		expr = ast.Binary{expr, operator, right}
 	}
 
 	return expr

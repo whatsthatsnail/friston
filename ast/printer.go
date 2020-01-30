@@ -4,35 +4,11 @@ import "fmt"
 
 type ASTPrinter struct{}
 
-func (printer ASTPrinter) visitEquality(e Equality) {
+func (printer ASTPrinter) visitBinary(b Binary) {
 	fmt.Printf("(")
-	e.X.Accept(printer)
-	fmt.Printf(" %s ", e.Op.Lexeme)
-	e.Y.Accept(printer)
-	fmt.Printf(")")
-}
-
-func (printer ASTPrinter) visitComparison(c Comparison) {
-	fmt.Printf("(")
-	c.X.Accept(printer)
-	fmt.Printf(" %s ", c.Op.Lexeme)
-	c.Y.Accept(printer)
-	fmt.Printf(")")
-}
-
-func (printer ASTPrinter) visitAddition(a Addition) {
-	fmt.Printf("(")
-	a.X.Accept(printer)
-	fmt.Printf(" %s ", a.Op.Lexeme)
-	a.Y.Accept(printer)
-	fmt.Printf(")")
-}
-
-func (printer ASTPrinter) visitMultiplication(m Multiplication) {
-	fmt.Printf("(")
-	m.X.Accept(printer)
-	fmt.Printf(" %s ", m.Op.Lexeme)
-	m.Y.Accept(printer)
+	b.X.Accept(printer)
+	fmt.Printf(" %s ", b.Op.Lexeme)
+	b.Y.Accept(printer)
 	fmt.Printf(")")
 }
 

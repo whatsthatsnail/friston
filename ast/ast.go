@@ -4,10 +4,7 @@ import "github.com/whatsthatsnail/simple_interpreter/lexer"
 
 // Visitor interface (all other visitors must implement this)
 type Visitor interface {
-	visitEquality(e Equality)
-	visitComparison(c Comparison)
-	visitAddition(a Addition)
-	visitMultiplication(m Multiplication)
+	visitBinary(b Binary)
 	visitUnary(u Unary)
 	visitGroup(g Group)
 	visitLiteral(l Literal)
@@ -18,44 +15,14 @@ type Expression interface {
 	Accept(v Visitor)
 }
 
-type Equality struct {
+type Binary struct {
 	X Expression
 	Op lexer.Token
 	Y Expression
 }
 
-func (e Equality) Accept(v Visitor) {
-	 v.visitEquality(e)
-}
-
-type Comparison struct {
-	X Expression
-	Op lexer.Token
-	Y Expression
-}
-
-func (c Comparison) Accept(v Visitor) {
-	 v.visitComparison(c)
-}
-
-type Addition struct {
-	X Expression
-	Op lexer.Token
-	Y Expression
-}
-
-func (a Addition) Accept(v Visitor) {
-	 v.visitAddition(a)
-}
-
-type Multiplication struct {
-	X Expression
-	Op lexer.Token
-	Y Expression
-}
-
-func (m Multiplication) Accept(v Visitor) {
-	 v.visitMultiplication(m)
+func (b Binary) Accept(v Visitor) {
+	v.visitBinary(b)
 }
 
 type Unary struct {

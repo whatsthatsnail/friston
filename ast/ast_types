@@ -1,16 +1,4 @@
-Equality:
-    X = Expression;
-    Op = Token;
-    Y = Expression;
-Comparison:
-    X = Expression;
-    Op = Token;
-    Y = Expression;
-Addition:
-    X = Expression;
-    Op = Token;
-    Y = Expression;
-Multiplication:
+Binary:
     X = Expression;
     Op = Token;
     Y = Expression;
