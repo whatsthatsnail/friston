@@ -54,12 +54,18 @@ func file(path string, quiet bool) {
 
 	if !errFlag{
 		lexer.PrintTokens(tokens)
+		
 		par := parser.NewParser(tokens)
 		expr := par.Parse()
+		
 		printer := ast.ASTPrinter{}
-		fmt.Println()
+		fmt.Printf("\n")
 		expr.Accept(printer)
 		fmt.Printf("\n\n")
+
+		interpreter := ast.Interpreter{}
+		out := expr.Accept(interpreter)
+		fmt.Printf("Output: %v\n", out)
 	}
 }
 

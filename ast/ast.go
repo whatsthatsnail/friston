@@ -4,15 +4,15 @@ import "github.com/whatsthatsnail/simple_interpreter/lexer"
 
 // Visitor interface (all other visitors must implement this)
 type Visitor interface {
-	visitBinary(b Binary)
-	visitUnary(u Unary)
-	visitGroup(g Group)
-	visitLiteral(l Literal)
+	visitBinary(b Binary) interface{}
+	visitUnary(u Unary) interface{}
+	visitGroup(g Group) interface{}
+	visitLiteral(l Literal) interface{}
 }
 
 // Node types:
 type Expression interface {
-	Accept(v Visitor)
+	Accept(v Visitor) interface{}
 }
 
 type Binary struct {
@@ -21,8 +21,8 @@ type Binary struct {
 	Y Expression
 }
 
-func (b Binary) Accept(v Visitor) {
-	v.visitBinary(b)
+func (b Binary) Accept(v Visitor) interface{} {
+	return v.visitBinary(b)
 }
 
 type Unary struct {
@@ -30,8 +30,8 @@ type Unary struct {
 	X Expression
 }
 
-func (u Unary) Accept(v Visitor) {
-	 v.visitUnary(u)
+func (u Unary) Accept(v Visitor) interface{} {
+	 return v.visitUnary(u)
 }
 
 type Group struct {
@@ -40,14 +40,14 @@ type Group struct {
 	Right lexer.Token
 }
 
-func (g Group) Accept(v Visitor) {
-	 v.visitGroup(g)
+func (g Group) Accept(v Visitor) interface{} {
+	 return v.visitGroup(g)
 }
 
 type Literal struct {
 	X lexer.Token
 }
 
-func (l Literal) Accept(v Visitor) {
-	 v.visitLiteral(l)
+func (l Literal) Accept(v Visitor) interface{} {
+	 return v.visitLiteral(l)
 }
