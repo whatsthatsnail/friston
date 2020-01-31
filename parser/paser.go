@@ -94,7 +94,7 @@ func (p *parser) equality() ast.Expression {
 func (p *parser) comparison() ast.Expression {
 	expr := p.addition()
 
-	for p.match([]lexer.TokenType{lexer.LESS, lexer.LESS_EQUAL, lexer.GREATER, lexer.GREATER_EQUAL}) {
+	for p.match([]lexer.TokenType{lexer.LESS, lexer.LESS_EQUAL, lexer.GREATER, lexer.GREATER_EQUAL, lexer.EQUAL_EQUAL}) {
 		operator := p.previous()
 		right := p.addition()
 		expr = ast.Binary{expr, operator, right}

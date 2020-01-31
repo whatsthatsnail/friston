@@ -47,16 +47,18 @@ type lexer struct {
 	tokens []Token
 	source string
 	hadError bool
+	repl bool
 }
 
 // Lexer constructor, initializes default values
-func NewLexer(code string) lexer {
+func NewLexer(code string, repl bool) lexer {
 	l := lexer{}
 	l.start = 0
 	l.current = 0
 	l.line = 1
 	l.source = code
 	l.hadError = false
+	repl = repl
 
 	return l
 }
@@ -109,7 +111,11 @@ func (l *lexer) match(x rune, a TokenType, b TokenType) TokenType {
 
 // Adds a new Token instance to l.tokens using input type and literal, and infered lexeme and line
 func (l *lexer) addToken(tType TokenType, literal interface{}) {
-	l.tokens = append(l.tokens, Token{tType, l.source[l.start:l.current], literal, l.line})
+	if l.repl == false {
+		l.tokens = append(l.tokens, Token{tType, l.source[l.start:l.current], literal, 0})
+	} else {
+		l.tokens = append(l.tokens, Token{tType, l.source[l.start:l.current], literal, l.line})
+	}
 }
 
 // Consumes a string literal, including new lines, and creates a STRING token

@@ -7,70 +7,158 @@ import (
 	"github.com/whatsthatsnail/simple_interpreter/errors"
 )
 
-// TODO: Handle bools, equalities, comparisons, etc
-
 type Interpreter struct{}
 
+// Helper methods:
+
+func (i Interpreter) evaluate(expr Expression) interface{} {
+	return expr.Accept(i)
+}
+
+// Nil, false bools, zero, empty strings are false, all else is true.
+func isTruth(expr interface{}) bool {
+	switch expr.(type) {
+	case nil:
+		return false
+	case bool:
+		if expr.(bool) == false {
+			return false
+		} else {
+			return true
+		}
+	case int, float64:
+		if expr.(float64) == 0 {
+			return false
+		} else {
+			return true
+		}
+	case string:
+		if len(expr.(string)) == 0 {
+			return false
+		} else {
+			return true
+		}
+	default:
+		return true
+	}
+}
+
+// Nil is only equal to itself (our equality differs from Golang).
+func isEqual(left interface{}, right interface{}) bool {
+	if left == nil && right == nil {
+		return true
+	} else if left == nil {
+		return false
+	}
+
+	return left == right
+}
+
+func checkNumberOperand(operator lexer.Token, number interface{}) bool {
+	switch number.(type) {
+	case int, float64:
+		return true
+	default:
+		errors.ThrowError(operator.Line, "Operand must be a number.")
+		return false
+	}
+}
+
+func checkNumberOperands(operator lexer.Token, left interface{}, right interface{}) bool {
+	if reflect.TypeOf(left) == reflect.TypeOf(right) {
+		switch left.(type) {
+		case int, float64:
+			return true
+		default:
+			errors.ThrowError(operator.Line, "Operands must be a number.")
+			return false
+		}
+	} else {
+		errors.ThrowError(operator.Line, "Operand types must match.")
+		return false
+	}
+}
+
+// Visitor methods:
+
 func (i Interpreter) visitBinary(b Binary) interface{} {
-	// Evaluate each side all the way down the tree
+	// Evaluate each side all the way down the tree.
 	left := b.X.Accept(i)
 	right := b.Y.Accept(i)
 
-	// When each side's type matches, do the correct operation
-	if reflect.TypeOf(left) == reflect.TypeOf(right) {
-		switch left.(type) {
-		// Ints can convert to floats, but not the other way around, so convert everything to a float for simplicity
-		case float64, int:
-			switch b.Op.TType {
-			case lexer.PLUS:
-				return left.(float64) + right.(float64)
-			case lexer.MINUS:
-				return left.(float64) - right.(float64)
-			case lexer.STAR:
-				return left.(float64) * right.(float64)
-			case lexer.SLASH:
-				return left.(float64) / right.(float64)
-			}
-
-		// Concatenate strings only when they are added
-		case string:
-			if b.Op.TType == lexer.PLUS {
-				return left.(string) + right.(string)
-			} else {
-				errors.ThrowError(b.Op.Line, "Invalid string operation.")
+	switch b.Op.TType {
+	// Basic arithmetic:
+	case lexer.MINUS:
+		if checkNumberOperands(b.Op, left, right) {
+			return left.(float64) - right.(float64)
+		}
+	case lexer.STAR:
+		if checkNumberOperands(b.Op, left, right) {
+			return left.(float64) * right.(float64)
+		}
+	case lexer.SLASH:
+		if checkNumberOperands(b.Op, left, right) {
+			if right.(float64) == 0 {
+				errors.ThrowError(b.Op.Line, "Division by zero.")
 				return nil
 			}
+			return left.(float64) / right.(float64)
 		}
 
-	// If each side's type doesn't match, attempt to concatenate them as strings
-	} else {
-		if b.Op.TType == lexer.PLUS {
+	// Addition (includes string concatenation):
+	case lexer.PLUS:
+		switch left.(type) {
+		case int, float64:
+			if checkNumberOperands(b.Op, left, right) {
+				return left.(float64) + right.(float64)
+			}
+		case string:
 			return fmt.Sprintf("%v%v", left, right)
-		} else {
-			errors.ThrowError(b.Op.Line, "Invalid string operation.")
-			return nil
-		}		
+		}
+
+	// Comparisons:
+	case lexer.GREATER:
+		if checkNumberOperands(b.Op, left, right) {
+			return left.(float64) > right.(float64)
+		}
+	case lexer.GREATER_EQUAL:
+		if checkNumberOperands(b.Op, left, right) {
+			return left.(float64) >= right.(float64)
+		}
+	case lexer.LESS:
+		if checkNumberOperands(b.Op, left, right) {
+			return left.(float64) < right.(float64)
+		}
+	case lexer.LESS_EQUAL:
+		if checkNumberOperands(b.Op, left, right) {
+			return left.(float64) <= right.(float64)
+		}
+	case lexer.EQUAL_EQUAL:
+		return isEqual(left, right)
 	}
+
+	// Unreachable.
 	return nil
 }
 
 func (i Interpreter) visitUnary(u Unary) interface{} {
-	// Negate ints or floats if the operator matches '-'
-	switch u.X.Accept(i).(type) {
-	case int, float64:
-		if u.Op.TType == lexer.MINUS {
-			return 0 - u.X.Accept(i).(float64)
-		} else {
-			return u.X.Accept(i).(float64)
+	right := i.evaluate(u.X)
+
+	switch u.Op.TType {
+	case lexer.MINUS:
+		if checkNumberOperand(u.Op, right) {
+			return -right.(float64)
 		}
-	// Otherwise, continue down the tree.
-	default:
-		return u.X.Accept(i)
+	case lexer.BANG:
+		return !isTruth(right)
 	}
+
+	// Unreachable.
+	return nil
 }
 
 func (i Interpreter) visitGroup(g Group) interface{} {
-	return g.X.Accept(i)
+	return i.evaluate(g.X)
 }
 
 func (i Interpreter) visitLiteral(l Literal) interface{} {

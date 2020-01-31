@@ -13,7 +13,7 @@ import (
 
 // Gets arguments when using 'go run *.go -- ...'
 func main() {
-	
+
 	var args []string
 	if len(os.Args) > 2 {
 		args = os.Args[2:]
@@ -46,22 +46,24 @@ func repl() {
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		line := scanner.Text()
-		
+
 		if line == "exit" {
 			os.Exit(0)
 		}
-		
-		lex := lexer.NewLexer(line)
+
+		lex := lexer.NewLexer(line, true)
 		tokens, errFlag := lex.ScanTokens()
-		
+
 		if !errFlag {
 			par := parser.NewParser(tokens)
 			expr := par.Parse()
 
 			interpreter := ast.Interpreter{}
 			out := expr.Accept(interpreter)
-			if out != nil { 
+			if out != nil {
 				fmt.Printf("%v\n>> ", out)
+			} else {
+				fmt.Printf(">>")
 			}
 		}
 	}
@@ -77,15 +79,15 @@ func file(path string, quiet bool) {
 		fmt.Println(string(dat) + "\n")
 	}
 
-	lex := lexer.NewLexer(string(dat))
+	lex := lexer.NewLexer(string(dat), false)
 	tokens, errFlag := lex.ScanTokens()
 
 	if !errFlag{
 		lexer.PrintTokens(tokens)
-		
+
 		par := parser.NewParser(tokens)
 		expr := par.Parse()
-		
+
 		printer := ast.ASTPrinter{}
 		fmt.Printf("\n")
 		expr.Accept(printer)
@@ -101,7 +103,7 @@ func genASTSource(path string) {
 	dat, err := ioutil.ReadFile(path)
 	check(err)
 
-	scanner := lexer.NewLexer(string(dat))
+	scanner := lexer.NewLexer(string(dat), false)
 	tokens, errFlag := scanner.ScanTokens()
 
 	if !errFlag{
