@@ -173,35 +173,12 @@ func (l *lexer) getWord() {
 	// Store word lexeme
 	word := l.source[l.start:l.current]
 
-	switch keywords[word] {
-	case AND:
-		l.addToken(AND, word)
-	case CLASS:
-		l.addToken(CLASS, word)
-	case ELSE:
-		l.addToken(ELSE, word)
-	case FALSE:
-		l.addToken(FALSE, word)
-	case FOR:
-		l.addToken(FOR, word)
-	case FUNC:
-		l.addToken(FUNC, word)
-	case IF:
-		l.addToken(IF, word)
-	case NIL:
+	if keywords[word] == NIL {
 		l.addToken(NIL, nil)
-	case OR:
-		l.addToken(OR, word)
-	case THIS:
-		l.addToken(THIS, word)
-	case TRUE:
-		l.addToken(TRUE, word)
-	case VAR:
-		l.addToken(VAR, word)
-	case WHILE:
-		l.addToken(WHILE, word)
-	default:
+	} else if keywords[word] == 0 {
 		l.addToken(IDENTIFIER, word)
+	} else {
+		l.addToken(keywords[word], word)
 	}
 }
 
