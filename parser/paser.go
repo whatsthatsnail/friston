@@ -9,6 +9,7 @@ import (
 type parser struct {
 	tokens []lexer.Token
 	current int
+	statements []ast.Statement
 }
 
 // Parser constructor, initializes default vaules
@@ -20,9 +21,12 @@ func NewParser(tokens []lexer.Token) parser {
 	return p
 }
 
-// TODO: integrate error handling
-func (p *parser) Parse() ast.Expression {
-	return p.expresssion()
+func (p *parser) Parse() []ast.Statement {
+	for !p.isAtEnd() {
+		p.statements = append(p.statements, p.statement())
+	}
+
+	return p.statements
 }
 
 // Helper methods:
@@ -75,14 +79,33 @@ func (p *parser) match(tTypes []lexer.TokenType) bool {
 // Node creator methods:
 // Each method calls a method of higher precedence if possible,
 // so high precedence expressions are evaluated first.
-func (p *parser) expresssion() ast.Expression {
-	return p.equality()
+func (p *parser) expression() ast.Expression {
+	return p.assignment()
+}
+
+func (p *parser) assignment() ast.Expression {
+	expr := p.equality()
+
+	if p.match([]lexer.TokenType{lexer.EQUAL}) {
+		equals := p.previous()
+		value := p.assignment()
+
+		vr, ok := expr.(ast.Variable)
+		if ok {
+			name := vr.Name
+			return ast.Assignment{name, value}
+		}
+
+		errors.ThrowError(equals.Line, "Invalid assignment target.")
+	}
+
+	return expr
 }
 
 func (p *parser) equality() ast.Expression {
 	expr := p.comparison()
 
-	for p.match([]lexer.TokenType{lexer.BANG_EQUAL, lexer.EQUAL}) {
+	for p.match([]lexer.TokenType{lexer.BANG_EQUAL, lexer.EQUAL_EQUAL}) {
 		operator := p.previous()
 		right := p.comparison()
 		expr = ast.Binary{expr, operator, right}
@@ -94,7 +117,7 @@ func (p *parser) equality() ast.Expression {
 func (p *parser) comparison() ast.Expression {
 	expr := p.addition()
 
-	for p.match([]lexer.TokenType{lexer.LESS, lexer.LESS_EQUAL, lexer.GREATER, lexer.GREATER_EQUAL, lexer.EQUAL_EQUAL}) {
+	for p.match([]lexer.TokenType{lexer.LESS, lexer.LESS_EQUAL, lexer.GREATER, lexer.GREATER_EQUAL}) {
 		operator := p.previous()
 		right := p.addition()
 		expr = ast.Binary{expr, operator, right}
@@ -144,23 +167,77 @@ func (p *parser) primary() ast.Expression {
 		return ast.Literal{p.previous()}
 	} else if p.match([]lexer.TokenType{lexer.LEFT_PAREN}) {
 		left := p.previous()
-		expr := p.expresssion()
+		expr := p.expression()
 		p.consume(lexer.RIGHT_PAREN, "Expect ')' after expression.")
 		right := p.previous()
 		return ast.Group{left, expr, right}
+	} else if p.match([]lexer.TokenType{lexer.IDENTIFIER}) {
+		return ast.Variable{p.previous()}
 	} else {
 		p.parseError(p.peek(), "Expect expression.")
 		return nil
 	}
 }
 
+// Statement/Declaration creator methods:
+
+func (p *parser) declaration() ast.Statement {
+	if p.match([]lexer.TokenType{lexer.VAR}) {
+		return p.varDecl()
+	} else {
+		return p.statement()
+	}
+}
+
+func (p *parser) varDecl() ast.Statement {
+	var name lexer.Token
+	if p.consume(lexer.IDENTIFIER, "Expect variable name.") {
+		name = p.previous()
+	}
+
+	var initializer ast.Expression
+	if p.match([]lexer.TokenType{lexer.EQUAL}) {
+		initializer = p.expression()
+	}
+
+	p.consume(lexer.SEMICOLON, "Expect ';' after variable declaration.")
+	return ast.VarDecl{name, initializer}
+}
+
+func (p *parser) statement() ast.Statement {
+	switch p.peek().TType {
+	case lexer.PRINT:
+		p.advance()
+		return p.printStmt()
+	case lexer.VAR:
+		p.advance()
+		return p.varDecl()
+	}
+
+	return p.exprStmt()
+}
+
+func (p *parser) exprStmt() ast.Statement {
+	expr := p.expression()
+	p.consume(lexer.SEMICOLON, "Expect ';' after expression.")
+	return ast.ExprStmt{expr}
+}
+
+func (p *parser) printStmt() ast.Statement {
+	expr := p.expression()
+	p.consume(lexer.SEMICOLON, "Expect ';' after value.")
+	return ast.PrintStmt{expr}
+}
+
 // Error handling:
 
-func (p *parser) consume(tType lexer.TokenType, message string) {
+func (p *parser) consume(tType lexer.TokenType, message string) bool {
 	if p.check(tType) {
 		p.advance()
+		return true
 	} else {
 		p.parseError(p.peek(), message)
+		return false
 	}
 }
 

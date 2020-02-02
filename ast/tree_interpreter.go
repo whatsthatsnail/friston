@@ -4,15 +4,36 @@ import (
 	"reflect"
 	"fmt";
 	"github.com/whatsthatsnail/simple_interpreter/lexer";
-	"github.com/whatsthatsnail/simple_interpreter/errors"
+	"github.com/whatsthatsnail/simple_interpreter/errors";
+	env "github.com/whatsthatsnail/simple_interpreter/environment"
 )
 
-type Interpreter struct{}
+type Interpreter struct{
+	Repl bool
+	environment env.Environment
+}
+
+func NewInterpreter(repl bool) Interpreter {
+	i := Interpreter{}
+	i.Repl = repl
+	i.environment = env.NewEnvironment()
+	return i
+}
+
+func (i Interpreter) Interpret(stmts []Statement) {
+	for _, s := range(stmts) {
+		i.execute(s)
+	}
+}
 
 // Helper methods:
 
 func (i Interpreter) evaluate(expr Expression) interface{} {
 	return expr.Accept(i)
+}
+
+func (i Interpreter) execute(stmt Statement) {
+	stmt.Accept(i)
 }
 
 // Nil, false bools, zero, empty strings are false, all else is true.
@@ -79,7 +100,7 @@ func checkNumberOperands(operator lexer.Token, left interface{}, right interface
 	}
 }
 
-// Visitor methods:
+// Node visitor methods:
 
 func (i Interpreter) visitBinary(b Binary) interface{} {
 	// Evaluate each side all the way down the tree.
@@ -135,6 +156,8 @@ func (i Interpreter) visitBinary(b Binary) interface{} {
 		}
 	case lexer.EQUAL_EQUAL:
 		return isEqual(left, right)
+	case lexer.BANG_EQUAL:
+		return !isEqual(left, right)
 	}
 
 	// Unreachable.
@@ -163,4 +186,43 @@ func (i Interpreter) visitGroup(g Group) interface{} {
 
 func (i Interpreter) visitLiteral(l Literal) interface{} {
 	return l.X.Literal
+}
+
+func (i Interpreter) visitVariable(vr Variable) interface{} {
+	return i.environment.Get(vr.Name)
+}
+
+func (i Interpreter) visitAssignment(a Assignment) interface{} {
+	value := i.evaluate(a.Value)
+
+	i.environment.Assign(a.Name, value)
+	return value
+}
+
+// Statement visitor methods:
+
+func (i Interpreter) visitExprStmt(e ExprStmt) interface {} {
+	value := i.evaluate(e.Expr)
+
+	if i.Repl {
+		fmt.Printf("%v\n", value)
+	}
+
+	return nil
+}
+
+func (i Interpreter) visitPrintStmt(p PrintStmt) interface {} {
+	value := i.evaluate(p.Expr)
+	fmt.Printf("%v\n", value)
+	return nil
+}
+
+func (i Interpreter) visitVarDecl(d VarDecl) interface {} {
+	var value interface{}
+	if d.Initializer != nil {
+		value = i.evaluate(d.Initializer)
+	}
+
+	i.environment.Values[d.Name.Lexeme] = value
+	return nil
 }

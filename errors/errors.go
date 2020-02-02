@@ -3,6 +3,7 @@ package errors
 import "fmt"
 
 // TODO: Report column of error, print line of error, etc.
+// TODO: Differentiate between syntax and runtime errors, stop execution with runtime errors, etc.
 
 // Prints error message and sets error flag
 func ThrowError(line int, message string) {

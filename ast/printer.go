@@ -32,3 +32,34 @@ func (printer ASTPrinter) visitLiteral(l Literal) interface{} {
 	fmt.Printf("%v", l.X.Literal)
 	return nil
 }
+
+func (printer ASTPrinter) visitVariable(vr Variable) interface{} {
+	fmt.Printf("%s", vr.Name.Lexeme)
+	return nil
+}
+
+func (printer ASTPrinter) visitAssignment(a Assignment) interface{} {
+	fmt.Printf("%s = ", a.Name.Lexeme)
+	a.Value.Accept(printer)
+	return nil
+}
+
+func (printer ASTPrinter) visitExprStmt(e ExprStmt) interface {} {
+	e.Expr.Accept(printer)
+	fmt.Printf(";\n")
+	return nil
+}
+
+func (printer ASTPrinter) visitPrintStmt(p PrintStmt) interface {} {
+	fmt.Printf("print ")
+	p.Expr.Accept(printer)
+	fmt.Printf(";\n")
+	return nil
+}
+
+func (printer ASTPrinter) visitVarDecl(d VarDecl) interface{} {
+	fmt.Printf("var %s = ", d.Name.Lexeme)
+	d.Initializer.Accept(printer)
+	fmt.Printf(";\n")
+	return nil
+}

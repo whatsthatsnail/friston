@@ -43,6 +43,7 @@ const (
 	IF
 	NIL
 	OR
+	PRINT
 	THIS
 	TRUE
 	VAR
@@ -61,6 +62,7 @@ var keywords = map[string]TokenType{
 	"if" : IF,
 	"nil" : NIL,
 	"or" : OR,
+	"print" : PRINT,
 	"this" : THIS,
 	"true" : TRUE,
 	"var" : VAR,
@@ -136,14 +138,16 @@ func (t TokenType) typeString() string {
 	case 31:
 		return "OR"
 	case 32:
-		return "THIS"
+		return "PRINT"
 	case 33:
-		return "TRUE"
+		return "THIS"
 	case 34:
-		return "VAR"
+		return "TRUE"
 	case 35:
-		return "WHILE"
+		return "VAR"
 	case 36:
+		return "WHILE"
+	case 37:
 		return "EOF"
 	}
 

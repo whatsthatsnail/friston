@@ -111,7 +111,7 @@ func (l *lexer) match(x rune, a TokenType, b TokenType) TokenType {
 
 // Adds a new Token instance to l.tokens using input type and literal, and infered lexeme and line
 func (l *lexer) addToken(tType TokenType, literal interface{}) {
-	if l.repl == false {
+	if l.repl == true {
 		l.tokens = append(l.tokens, Token{tType, l.source[l.start:l.current], literal, 0})
 	} else {
 		l.tokens = append(l.tokens, Token{tType, l.source[l.start:l.current], literal, l.line})

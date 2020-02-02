@@ -8,6 +8,12 @@ type Visitor interface {
 	visitUnary(u Unary) interface{}
 	visitGroup(g Group) interface{}
 	visitLiteral(l Literal) interface{}
+	visitVariable(vr Variable) interface{}
+	visitAssignment(a Assignment) interface{}
+
+	visitExprStmt(e ExprStmt) interface{}
+	visitPrintStmt(p PrintStmt) interface{}
+	visitVarDecl(d VarDecl) interface{}
 }
 
 // Node types:
@@ -50,4 +56,52 @@ type Literal struct {
 
 func (l Literal) Accept(v Visitor) interface{} {
 	 return v.visitLiteral(l)
+}
+
+type Variable struct {
+	Name lexer.Token
+}
+
+func (vr Variable) Accept(v Visitor) interface{} {
+	return v.visitVariable(vr)
+}
+
+type Assignment struct {
+	Name lexer.Token
+	Value Expression
+}
+
+func (a Assignment) Accept(v Visitor) interface{} {
+	return v.visitAssignment(a)
+}
+
+//Statement types:
+
+type Statement interface {
+	Accept(v Visitor) interface{}
+}
+
+type ExprStmt struct {
+	Expr Expression
+}
+
+func (e ExprStmt) Accept(v Visitor) interface{} {
+	return v.visitExprStmt(e)
+}
+
+type PrintStmt struct {
+	Expr Expression
+}
+
+func (p PrintStmt) Accept(v Visitor) interface{} {
+	return v.visitPrintStmt(p)
+}
+
+type VarDecl struct {
+	Name lexer.Token
+	Initializer Expression
+}
+
+func (d VarDecl) Accept(v Visitor) interface{} {
+	return v.visitVarDecl(d)
 }

@@ -40,10 +40,14 @@ func check(err error) {
 }
 
 // TODO: Implement a REPL
+
 func repl() {
-	fmt.Printf("Entering REPL:\n>> ")
+	fmt.Printf("Entering REPL:\n>>> ")
 
 	scanner := bufio.NewScanner(os.Stdin)
+
+	interpreter := ast.NewInterpreter(true)
+
 	for scanner.Scan() {
 		line := scanner.Text()
 
@@ -56,15 +60,10 @@ func repl() {
 
 		if !errFlag {
 			par := parser.NewParser(tokens)
-			expr := par.Parse()
+			stmts := par.Parse()
 
-			interpreter := ast.Interpreter{}
-			out := expr.Accept(interpreter)
-			if out != nil {
-				fmt.Printf("%v\n>> ", out)
-			} else {
-				fmt.Printf(">>")
-			}
+			interpreter.Interpret(stmts)
+			fmt.Printf(">>> ")
 		}
 	}
 }
@@ -86,16 +85,17 @@ func file(path string, quiet bool) {
 		lexer.PrintTokens(tokens)
 
 		par := parser.NewParser(tokens)
-		expr := par.Parse()
+		stmts := par.Parse()
 
 		printer := ast.ASTPrinter{}
 		fmt.Printf("\n")
-		expr.Accept(printer)
-		fmt.Printf("\n\n")
+		for _, s := range(stmts) {
+			s.Accept(printer)
+		}
+		fmt.Printf("\n")
 
-		interpreter := ast.Interpreter{}
-		out := expr.Accept(interpreter)
-		fmt.Printf("Output: %v\n", out)
+		interpreter := ast.NewInterpreter(false)
+		interpreter.Interpret(stmts)
 	}
 }
 
