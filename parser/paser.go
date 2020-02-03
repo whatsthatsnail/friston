@@ -212,6 +212,9 @@ func (p *parser) statement() ast.Statement {
 	case lexer.VAR:
 		p.advance()
 		return p.varDecl()
+	case lexer.LEFT_BRACE:
+		p.advance()
+		return p.block()
 	}
 
 	return p.exprStmt()
@@ -227,6 +230,20 @@ func (p *parser) printStmt() ast.Statement {
 	expr := p.expression()
 	p.consume(lexer.SEMICOLON, "Expect ';' after value.")
 	return ast.PrintStmt{expr}
+}
+
+func (p *parser) block() ast.Statement {
+	var stmts []ast.Statement
+	for !p.check(lexer.RIGHT_BRACE) && !p.isAtEnd() {
+		stmts = append(stmts, p.statement())
+	}
+
+	if p.consume(lexer.RIGHT_BRACE, "Expect '}' after block.") {
+		return ast.Block{stmts}
+	} else {
+		// TODO: Proper parser errors!
+		return nil
+	}
 }
 
 // Error handling:

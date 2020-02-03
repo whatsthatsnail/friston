@@ -51,14 +51,14 @@ type lexer struct {
 }
 
 // Lexer constructor, initializes default values
-func NewLexer(code string, repl bool) lexer {
+func NewLexer(code string, replFlag bool) lexer {
 	l := lexer{}
 	l.start = 0
 	l.current = 0
 	l.line = 1
 	l.source = code
 	l.hadError = false
-	repl = repl
+	l.repl = replFlag
 
 	return l
 }

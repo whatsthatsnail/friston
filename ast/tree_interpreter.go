@@ -16,6 +16,7 @@ type Interpreter struct{
 func NewInterpreter(repl bool) Interpreter {
 	i := Interpreter{}
 	i.Repl = repl
+	// Define global scope envionment (parent = nil)
 	i.environment = env.NewEnvironment()
 	return i
 }
@@ -224,5 +225,15 @@ func (i Interpreter) visitVarDecl(d VarDecl) interface {} {
 	}
 
 	i.environment.Values[d.Name.Lexeme] = value
+	return nil
+}
+
+func (i Interpreter) visitBlock(b Block) interface{} {
+	i.environment.AddParent(env.NewEnvironment())
+
+	for _, s := range(b.Stmts) {
+		i.execute(s)
+	}
+
 	return nil
 }

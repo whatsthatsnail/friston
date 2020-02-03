@@ -63,3 +63,12 @@ func (printer ASTPrinter) visitVarDecl(d VarDecl) interface{} {
 	fmt.Printf(";\n")
 	return nil
 }
+
+func (printer ASTPrinter) visitBlock(b Block) interface{} {
+	fmt.Printf("{\n")
+	for _, s := range(b.Stmts) {
+		s.Accept(printer)
+	}
+	fmt.Printf("}\n")
+	return nil
+}

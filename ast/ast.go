@@ -14,6 +14,7 @@ type Visitor interface {
 	visitExprStmt(e ExprStmt) interface{}
 	visitPrintStmt(p PrintStmt) interface{}
 	visitVarDecl(d VarDecl) interface{}
+	visitBlock(b Block) interface{}
 }
 
 // Node types:
@@ -104,4 +105,12 @@ type VarDecl struct {
 
 func (d VarDecl) Accept(v Visitor) interface{} {
 	return v.visitVarDecl(d)
+}
+
+type Block struct {
+	Stmts []Statement
+}
+
+func (b Block) Accept(v Visitor) interface{} {
+	return v.visitBlock(b)
 }
