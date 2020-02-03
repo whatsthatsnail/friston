@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"github.com/whatsthatsnail/simple_interpreter/lexer";
+	"github.com/whatsthatsnail/simple_interpreter/lexer"
 	"github.com/whatsthatsnail/simple_interpreter/ast";
 	"github.com/whatsthatsnail/simple_interpreter/errors"
 )
@@ -206,6 +206,9 @@ func (p *parser) varDecl() ast.Statement {
 
 func (p *parser) statement() ast.Statement {
 	switch p.peek().TType {
+	case lexer.IF:
+		p.advance()
+		return p.ifStmt()
 	case lexer.PRINT:
 		p.advance()
 		return p.printStmt()
@@ -224,6 +227,21 @@ func (p *parser) exprStmt() ast.Statement {
 	expr := p.expression()
 	p.consume(lexer.SEMICOLON, "Expect ';' after expression.")
 	return ast.ExprStmt{expr}
+}
+
+func (p *parser) ifStmt() ast.Statement {
+	p.consume(lexer.LEFT_PAREN, "Expect '(' before if condition.")
+	condition := p.expression()
+	p.consume(lexer.RIGHT_PAREN, "Expect ')' after if condition.")
+	
+	thenBranch := p.statement()
+	var elseBranch ast.Statement = nil
+
+	if p.match([]lexer.TokenType{lexer.ELSE}) {
+		elseBranch = p.statement() 
+	}
+
+	return ast.IfStmt{condition, thenBranch, elseBranch}
 }
 
 func (p *parser) printStmt() ast.Statement {

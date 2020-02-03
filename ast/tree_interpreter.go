@@ -212,6 +212,16 @@ func (i Interpreter) visitExprStmt(e ExprStmt) interface {} {
 	return nil
 }
 
+func (i Interpreter) visitIfStmt(stmt IfStmt) interface {} {
+	if isTruth(i.evaluate(stmt.Condition)) {
+		i.execute(stmt.ThenBranch)
+	} else if stmt.ElseBranch != nil {
+		i.execute(stmt.ElseBranch)
+	}
+
+	return nil
+}
+
 func (i Interpreter) visitPrintStmt(p PrintStmt) interface {} {
 	value := i.evaluate(p.Expr)
 	fmt.Printf("%v\n", value)

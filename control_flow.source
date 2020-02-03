@@ -1,0 +1,7 @@
+var a = 2;
+
+if (a > 4) {
+    print "true";
+} else {
+    print "false";
+}

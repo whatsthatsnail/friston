@@ -50,6 +50,21 @@ func (printer ASTPrinter) visitExprStmt(e ExprStmt) interface {} {
 	return nil
 }
 
+func (printer ASTPrinter) visitIfStmt(stmt IfStmt) interface {} {
+	fmt.Printf("if (")
+	stmt.Condition.Accept(printer)
+	fmt.Printf(") ")
+
+	fmt.Printf("then ")
+	stmt.ThenBranch.Accept(printer)
+
+	if stmt.ElseBranch != nil {
+		fmt.Printf("else ")
+		stmt.ElseBranch.Accept(printer)
+	}
+	return nil
+}
+
 func (printer ASTPrinter) visitPrintStmt(p PrintStmt) interface {} {
 	fmt.Printf("print ")
 	p.Expr.Accept(printer)

@@ -12,6 +12,7 @@ type Visitor interface {
 	visitAssignment(a Assignment) interface{}
 
 	visitExprStmt(e ExprStmt) interface{}
+	visitIfStmt(stmt IfStmt) interface{}
 	visitPrintStmt(p PrintStmt) interface{}
 	visitVarDecl(d VarDecl) interface{}
 	visitBlock(b Block) interface{}
@@ -88,6 +89,16 @@ type ExprStmt struct {
 
 func (e ExprStmt) Accept(v Visitor) interface{} {
 	return v.visitExprStmt(e)
+}
+
+type IfStmt struct {
+	Condition Expression
+	ThenBranch Statement
+	ElseBranch Statement
+}
+
+func (i IfStmt) Accept(v Visitor) interface{} {
+	return v.visitIfStmt(i)
 }
 
 type PrintStmt struct {
