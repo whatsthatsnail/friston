@@ -21,12 +21,12 @@ func main() {
 
 	if len(args) >= 1 && args[0] == "repl" {
 		repl()
-	} else if len(args) >= 2 && args[0] == "file" {
+	} else if len(args) >= 3 && args[0] == "file" && args[2] == "-v" {
 		file(args[1], false)
+	} else if len(args) >= 2 && args[0] == "file" {
+		file(args[1], true)
 	} else if len(args) >= 2 && args[0] == "GenASTSource" {
 		genASTSource(args[1])
-	} else if len(args) >= 3 && args[0] == "file" && args[2] == "-q" {
-		file(args[1], true)
 	} else {
 		repl()
 	}
@@ -73,8 +73,8 @@ func file(path string, quiet bool) {
 	dat, err := ioutil.ReadFile(path)
 	check(err)
 
-	fmt.Println(path + ":" + "\n")
 	if !quiet {
+		fmt.Println(path + ":" + "\n")
 		fmt.Println(string(dat) + "\n")
 	}
 
@@ -82,17 +82,21 @@ func file(path string, quiet bool) {
 	tokens, errFlag := lex.ScanTokens()
 
 	if !errFlag{
-		lexer.PrintTokens(tokens)
+		if !quiet {
+			lexer.PrintTokens(tokens)
+		}
 
 		par := parser.NewParser(tokens)
 		stmts := par.Parse()
 
-		printer := ast.ASTPrinter{}
-		fmt.Printf("\n")
-		for _, s := range(stmts) {
-			s.Accept(printer)
+		if !quiet {
+			printer := ast.ASTPrinter{}
+			fmt.Printf("\n")
+			for _, s := range(stmts) {
+				s.Accept(printer)
+			}
+			fmt.Printf("\n")
 		}
-		fmt.Printf("\n")
 
 		interpreter := ast.NewInterpreter(false)
 		interpreter.Interpret(stmts)

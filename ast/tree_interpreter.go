@@ -222,6 +222,14 @@ func (i Interpreter) visitIfStmt(stmt IfStmt) interface {} {
 	return nil
 }
 
+func (i Interpreter) visitWhileStmt(stmt WhileStmt) interface {} {
+	for isTruth(i.evaluate(stmt.Condition)) {
+		i.execute(stmt.LoopBranch)
+	}
+
+	return nil
+}
+
 func (i Interpreter) visitPrintStmt(p PrintStmt) interface {} {
 	value := i.evaluate(p.Expr)
 	fmt.Printf("%v\n", value)

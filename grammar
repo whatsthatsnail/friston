@@ -20,7 +20,9 @@ statement       -> exprStmt
 block           -> "{" declaration* "}" ;
 
 exprStmt        -> expression ";" ;
-ifStmt          -> "if" "(" expression ")" statement ( "else" statement )?
+ifStmt          -> "if" "(" expression ")" statement ( "else" statement )? ;
+whileStmt       -> "while" "(" expression ")" statement ;
+forStmt         -> "for" "(" declaration ";" expression ";" statement ")"
 printStmt       -> "print" expression ";" ;
 
 expression      -> assignment ;

@@ -13,6 +13,7 @@ type Visitor interface {
 
 	visitExprStmt(e ExprStmt) interface{}
 	visitIfStmt(stmt IfStmt) interface{}
+	visitWhileStmt(stmt WhileStmt) interface {}
 	visitPrintStmt(p PrintStmt) interface{}
 	visitVarDecl(d VarDecl) interface{}
 	visitBlock(b Block) interface{}
@@ -99,6 +100,15 @@ type IfStmt struct {
 
 func (i IfStmt) Accept(v Visitor) interface{} {
 	return v.visitIfStmt(i)
+}
+
+type WhileStmt struct {
+	Condition Expression
+	LoopBranch Statement
+}
+
+func (w WhileStmt) Accept(v Visitor) interface {} {
+	return v.visitWhileStmt(w)
 }
 
 type PrintStmt struct {

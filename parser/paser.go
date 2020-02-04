@@ -209,6 +209,12 @@ func (p *parser) statement() ast.Statement {
 	case lexer.IF:
 		p.advance()
 		return p.ifStmt()
+	case lexer.WHILE:
+		p.advance()
+		return p.whileStmt()
+	case lexer.FOR:
+		p.advance()
+		return p.forStmt()
 	case lexer.PRINT:
 		p.advance()
 		return p.printStmt()
@@ -242,6 +248,35 @@ func (p *parser) ifStmt() ast.Statement {
 	}
 
 	return ast.IfStmt{condition, thenBranch, elseBranch}
+}
+
+func (p *parser) whileStmt() ast.Statement {
+	p.consume(lexer.LEFT_PAREN, "Expect '(' before while condition.")
+	condition := p.expression()
+	p.consume(lexer.RIGHT_PAREN, "Expect ')' after while condition.")
+
+	loopBranch := p.statement()
+
+	return ast.WhileStmt{condition, loopBranch}
+}
+
+// For loops are syntactic sugar, they are expressed as while loops.
+func (p *parser) forStmt() ast.Statement {
+	p.consume(lexer.LEFT_PAREN, "Expect '(' before initialization.")
+	declaration := p.declaration()
+	
+	condition := p.equality()
+	p.consume(lexer.SEMICOLON, "Expect ';' after condition statement.")
+	
+	increment := p.assignment()
+	p.consume(lexer.RIGHT_PAREN, "Expect ')' after increment statement.")
+	
+	loopBranch := p.statement()
+
+	block := ast.Block{[]ast.Statement{loopBranch, increment}}
+	forLoop := []ast.Statement{declaration, ast.WhileStmt{condition, block}}
+
+	return ast.Block{forLoop}
 }
 
 func (p *parser) printStmt() ast.Statement {

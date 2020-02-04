@@ -65,6 +65,15 @@ func (printer ASTPrinter) visitIfStmt(stmt IfStmt) interface {} {
 	return nil
 }
 
+func (printer ASTPrinter) visitWhileStmt(stmt WhileStmt) interface {} {
+	fmt.Printf("while (")
+	stmt.Condition.Accept(printer)
+	fmt.Printf(") ")
+	stmt.LoopBranch.Accept(printer)
+
+	return nil
+}
+
 func (printer ASTPrinter) visitPrintStmt(p PrintStmt) interface {} {
 	fmt.Printf("print ")
 	p.Expr.Accept(printer)
