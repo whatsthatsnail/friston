@@ -56,14 +56,16 @@ func repl() {
 		}
 
 		lex := lexer.NewLexer(line, true)
-		tokens, errFlag := lex.ScanTokens()
+		tokens, lexErr := lex.ScanTokens()
 
-		if !errFlag {
+		if !lexErr {
 			par := parser.NewParser(tokens)
-			stmts := par.Parse()
+			stmts, parErr := par.Parse()
 
-			interpreter.Interpret(stmts)
-			fmt.Printf(">>> ")
+			if !parErr {
+				interpreter.Interpret(stmts)
+				fmt.Printf(">>> ")
+			}
 		}
 	}
 }
@@ -79,17 +81,17 @@ func file(path string, quiet bool) {
 	}
 
 	lex := lexer.NewLexer(string(dat), false)
-	tokens, errFlag := lex.ScanTokens()
+	tokens, lexErr := lex.ScanTokens()
 
-	if !errFlag{
+	if !lexErr{
 		if !quiet {
 			lexer.PrintTokens(tokens)
 		}
 
 		par := parser.NewParser(tokens)
-		stmts := par.Parse()
+		stmts, parErr := par.Parse()
 
-		if !quiet {
+		if !quiet && !parErr {
 			printer := ast.ASTPrinter{}
 			fmt.Printf("\n")
 			for _, s := range(stmts) {
@@ -98,8 +100,10 @@ func file(path string, quiet bool) {
 			fmt.Printf("\n")
 		}
 
-		interpreter := ast.NewInterpreter(false)
-		interpreter.Interpret(stmts)
+		if !parErr {
+			interpreter := ast.NewInterpreter(false)
+			interpreter.Interpret(stmts)
+		}
 	}
 }
 

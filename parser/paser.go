@@ -10,6 +10,7 @@ type parser struct {
 	tokens []lexer.Token
 	current int
 	statements []ast.Statement
+	errFlag bool
 }
 
 // Parser constructor, initializes default vaules
@@ -21,12 +22,12 @@ func NewParser(tokens []lexer.Token) parser {
 	return p
 }
 
-func (p *parser) Parse() []ast.Statement {
+func (p *parser) Parse() ([]ast.Statement, bool) {
 	for !p.isAtEnd() {
 		p.statements = append(p.statements, p.statement())
 	}
 
-	return p.statements
+	return p.statements, p.errFlag
 }
 
 // Helper methods:
@@ -191,9 +192,8 @@ func (p *parser) declaration() ast.Statement {
 
 func (p *parser) varDecl() ast.Statement {
 	var name lexer.Token
-	if p.consume(lexer.IDENTIFIER, "Expect variable name.") {
-		name = p.previous()
-	}
+	p.consume(lexer.IDENTIFIER, "Expect variable name.")
+	name = p.previous()
 
 	var initializer ast.Expression
 	if p.match([]lexer.TokenType{lexer.EQUAL}) {
@@ -291,37 +291,31 @@ func (p *parser) block() ast.Statement {
 		stmts = append(stmts, p.statement())
 	}
 
-	if p.consume(lexer.RIGHT_BRACE, "Expect '}' after block.") {
-		return ast.Block{stmts}
-	} else {
-		// TODO: Proper parser errors!
-		return nil
-	}
+	p.consume(lexer.RIGHT_BRACE, "Expect '}' after block.")
+	return ast.Block{stmts}
 }
 
 // Error handling:
 
-func (p *parser) consume(tType lexer.TokenType, message string) bool {
+func (p *parser) consume(tType lexer.TokenType, message string) {
 	if p.check(tType) {
 		p.advance()
-		return true
 	} else {
 		p.parseError(p.peek(), message)
-		return false
 	}
 }
 
 func (p *parser) parseError(token lexer.Token, message string) {
+	p.errFlag = true
 	errors.ThrowError(token.Line, message)
+	p.synchronize()
 }
 
 // TODO: Sychronize to previous statement when a parseError is called.
 func (p *parser) synchronize() {
 	p.advance()
 
-	for !p.isAtEnd() {
-		if p.previous().TType == lexer.SEMICOLON {
-			return
-		}
+	for !p.isAtEnd() && !(p.peek().TType > lexer.IDENTIFIER && p.peek().TType < lexer.EOF) {
+		p.advance()
 	}
 }
