@@ -1,5 +1,28 @@
-var a = 1;
+var a = "global";
+var b = "global";
+var c = "global";
 {
-  var a = a + 2;
   print a;
+  b = "first";
+  print b;
+  print c;
+
+  {
+    print a;
+    print b;
+    c = "second";
+    print c;
+
+    var d = "inner var";
+  }
+
+  print a;
+  print b;
+  print c;
+  print d;
 }
+
+print a;
+print b;
+print c;
+print d;

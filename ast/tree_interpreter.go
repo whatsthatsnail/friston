@@ -242,16 +242,23 @@ func (i Interpreter) visitVarDecl(d VarDecl) interface {} {
 		value = i.evaluate(d.Initializer)
 	}
 
-	i.environment.Values[d.Name.Lexeme] = value
+	i.environment.Declare(d.Name, value)
 	return nil
 }
 
 func (i Interpreter) visitBlock(b Block) interface{} {
-	i.environment.AddParent(env.NewEnvironment())
+	// Create a new environment, enclosed by the current scope.
+	enclosing := i.environment
+	enclosed := env.NewEnvironment()
+	enclosed.AddParent(enclosing)
+	
+	// Set the current environment to the inner scope. 
+	i.environment = enclosed
 
 	for _, s := range(b.Stmts) {
 		i.execute(s)
 	}
+
 
 	return nil
 }
