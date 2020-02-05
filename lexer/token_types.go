@@ -46,7 +46,7 @@ const (
 	PRINT
 	THIS
 	TRUE
-	VAR
+	LET
 	WHILE
 
 	EOF
@@ -65,7 +65,7 @@ var keywords = map[string]TokenType{
 	"print" : PRINT,
 	"this" : THIS,
 	"true" : TRUE,
-	"var" : VAR,
+	"let" : LET,
 	"while" : WHILE,
 }
 
@@ -144,7 +144,7 @@ func (t TokenType) typeString() string {
 	case 34:
 		return "TRUE"
 	case 35:
-		return "VAR"
+		return "LET"
 	case 36:
 		return "WHILE"
 	case 37:

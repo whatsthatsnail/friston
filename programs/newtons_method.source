@@ -1,9 +1,9 @@
 // Find the square root of x
-var x = 8;
-var y = x;
+let x = 8
+let y = x
 
 while (x*x - y > 0.0000000000000001) {
-    x = (x + y/x)/2;
+    x = (x + y/x)/2
 }
 
-print "The square root of " + y + " is " + x + ".";
+print "The square root of " + y + " is " + x + "."

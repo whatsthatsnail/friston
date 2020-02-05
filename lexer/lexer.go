@@ -90,7 +90,7 @@ func (l *lexer) peek() rune {
 	return '\n'
 }
 
-// Returns the next character without conuming it, as long as there is anothe character peek
+// Returns the next character without consuming it, as long as there is another character peek
 func (l *lexer) peekNext() rune {
 	if !l.isAtEnd() && !((l.current + 1) > len(l.source) - 1) {
 		return rune(l.source[l.current + 1])
@@ -182,6 +182,18 @@ func (l *lexer) getWord() {
 	}
 }
 
+// TODO: Save newlines as tokens and use those to end statements, start and end blocks, etc. Slip the bonds of semicolons! 
+
+// Adds a ';' token if the previous token is not a semicolon or a token that begins or ends a multi-line statement.
+func (l *lexer) addSemi() {
+	if len(l.tokens) > 0 {
+		previous := l.tokens[len(l.tokens) - 1].TType
+		if previous != SEMICOLON && previous != LEFT_BRACE && previous != RIGHT_BRACE {
+			l.addToken(SEMICOLON, nil)
+		}
+	}
+}
+
 // Advances current and adds the current token
 func (l *lexer) scanToken() {
 	char := l.advance()
@@ -235,6 +247,7 @@ func (l *lexer) scanToken() {
 
 	// Whitespace and meanginless characters
 	case '\n':
+		l.addSemi() 			
 		l.line++
 	case ' ':
 	case '\r':
@@ -265,6 +278,7 @@ func (l *lexer) ScanTokens() ([]Token, bool) {
 		l.scanToken()
 	}
 
+	l.addSemi()
 	l.tokens = append(l.tokens, Token{EOF, "EOF", nil, l.line})
 	return l.tokens, l.hadError
 }

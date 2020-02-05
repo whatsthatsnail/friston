@@ -1,28 +1,24 @@
-var a = "global";
-var b = "global";
-var c = "global";
+let a = "global"
+let b = "global"
+let c = "global"
 {
-  print a;
-  b = "first";
-  print b;
-  print c;
+  print a
+  b = "first"
+  print b
+  print c
 
   {
-    print a;
-    print b;
-    c = "second";
-    print c;
+    print a
+    print b
+    c = "second"
+    print c
 
-    var d = "inner var";
+    let d = "inner let"
   }
 
-  print a;
-  print b;
-  print c;
-  print d;
+  print a
+  print b
+  print c
 }
 
-print a;
-print b;
-print c;
-print d;
+print a; print b; print c

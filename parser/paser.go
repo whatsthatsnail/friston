@@ -183,7 +183,7 @@ func (p *parser) primary() ast.Expression {
 // Statement/Declaration creator methods:
 
 func (p *parser) declaration() ast.Statement {
-	if p.match([]lexer.TokenType{lexer.VAR}) {
+	if p.match([]lexer.TokenType{lexer.LET}) {
 		return p.varDecl()
 	} else {
 		return p.statement()
@@ -218,7 +218,7 @@ func (p *parser) statement() ast.Statement {
 	case lexer.PRINT:
 		p.advance()
 		return p.printStmt()
-	case lexer.VAR:
+	case lexer.LET:
 		p.advance()
 		return p.varDecl()
 	case lexer.LEFT_BRACE:
