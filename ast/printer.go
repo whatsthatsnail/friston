@@ -82,7 +82,7 @@ func (printer ASTPrinter) visitPrintStmt(p PrintStmt) interface {} {
 }
 
 func (printer ASTPrinter) visitVarDecl(d VarDecl) interface{} {
-	fmt.Printf("var %s = ", d.Name.Lexeme)
+	fmt.Printf("let %s = ", d.Name.Lexeme)
 	d.Initializer.Accept(printer)
 	fmt.Printf(";\n")
 	return nil

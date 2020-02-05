@@ -200,7 +200,7 @@ func (p *parser) varDecl() ast.Statement {
 		initializer = p.expression()
 	}
 
-	p.consume(lexer.SEMICOLON, "Expect ';' after variable declaration.")
+	p.consume(lexer.END, "Expect ';' or new line after variable declaration.")
 	return ast.VarDecl{name, initializer}
 }
 
@@ -231,7 +231,7 @@ func (p *parser) statement() ast.Statement {
 
 func (p *parser) exprStmt() ast.Statement {
 	expr := p.expression()
-	p.consume(lexer.SEMICOLON, "Expect ';' after expression.")
+	p.consume(lexer.END, "Expect ';' or new line after expression.")
 	return ast.ExprStmt{expr}
 }
 
@@ -239,12 +239,12 @@ func (p *parser) ifStmt() ast.Statement {
 	p.consume(lexer.LEFT_PAREN, "Expect '(' before if condition.")
 	condition := p.expression()
 	p.consume(lexer.RIGHT_PAREN, "Expect ')' after if condition.")
-	
+
 	thenBranch := p.statement()
 	var elseBranch ast.Statement = nil
 
 	if p.match([]lexer.TokenType{lexer.ELSE}) {
-		elseBranch = p.statement() 
+		elseBranch = p.statement()
 	}
 
 	return ast.IfStmt{condition, thenBranch, elseBranch}
@@ -264,13 +264,13 @@ func (p *parser) whileStmt() ast.Statement {
 func (p *parser) forStmt() ast.Statement {
 	p.consume(lexer.LEFT_PAREN, "Expect '(' before initialization.")
 	declaration := p.declaration()
-	
+
 	condition := p.equality()
-	p.consume(lexer.SEMICOLON, "Expect ';' after condition statement.")
-	
+	p.consumeLexeme(";", "Expect ';' after condition statement.")
+
 	increment := p.assignment()
 	p.consume(lexer.RIGHT_PAREN, "Expect ')' after increment statement.")
-	
+
 	loopBranch := p.statement()
 
 	block := ast.Block{[]ast.Statement{loopBranch, increment}}
@@ -281,7 +281,7 @@ func (p *parser) forStmt() ast.Statement {
 
 func (p *parser) printStmt() ast.Statement {
 	expr := p.expression()
-	p.consume(lexer.SEMICOLON, "Expect ';' after value.")
+	p.consume(lexer.END, "Expect ';' or new line after value.")
 	return ast.PrintStmt{expr}
 }
 
@@ -299,6 +299,14 @@ func (p *parser) block() ast.Statement {
 
 func (p *parser) consume(tType lexer.TokenType, message string) {
 	if p.check(tType) {
+		p.advance()
+	} else {
+		p.parseError(p.peek(), message)
+	}
+}
+
+func (p *parser) consumeLexeme(lexeme string, message string) {
+	if !p.isAtEnd() && p.peek().Lexeme == lexeme {
 		p.advance()
 	} else {
 		p.parseError(p.peek(), message)

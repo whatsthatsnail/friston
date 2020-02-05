@@ -182,14 +182,14 @@ func (l *lexer) getWord() {
 	}
 }
 
-// TODO: Save newlines as tokens and use those to end statements, start and end blocks, etc. Slip the bonds of semicolons! 
+// TODO: Save newlines as tokens and use those to end statements, start and end blocks, etc. Slip the bonds of semicolons!
 
 // Adds a ';' token if the previous token is not a semicolon or a token that begins or ends a multi-line statement.
-func (l *lexer) addSemi() {
+func (l *lexer) addEnd() {
 	if len(l.tokens) > 0 {
 		previous := l.tokens[len(l.tokens) - 1].TType
-		if previous != SEMICOLON && previous != LEFT_BRACE && previous != RIGHT_BRACE {
-			l.addToken(SEMICOLON, nil)
+		if previous != END && previous != SEMICOLON && previous != LEFT_BRACE && previous != RIGHT_BRACE {
+			l.tokens = append(l.tokens, Token{END, "", nil, l.line})
 		}
 	}
 }
@@ -216,7 +216,7 @@ func (l *lexer) scanToken() {
 	case ',':
 		l.addToken(COMMA, nil)
 	case ';':
-		l.addToken(SEMICOLON, nil)
+		l.addToken(END, nil)
 	case ':':
 		l.addToken(COLON, nil)
 	case '.':
@@ -247,8 +247,13 @@ func (l *lexer) scanToken() {
 
 	// Whitespace and meanginless characters
 	case '\n':
-		l.addSemi() 			
+		l.addEnd()
 		l.line++
+	case '~':
+		// Skip a newline if it's preceded by a '~' to allow a statement to continue to a new line of text.
+		if l.peek() == '\n' {
+			l.advance()
+		}
 	case ' ':
 	case '\r':
 	case '\t':
@@ -278,7 +283,7 @@ func (l *lexer) ScanTokens() ([]Token, bool) {
 		l.scanToken()
 	}
 
-	l.addSemi()
+	l.addEnd()
 	l.tokens = append(l.tokens, Token{EOF, "EOF", nil, l.line})
 	return l.tokens, l.hadError
 }

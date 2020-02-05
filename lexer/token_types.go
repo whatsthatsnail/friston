@@ -49,6 +49,7 @@ const (
 	LET
 	WHILE
 
+	END
 	EOF
 )
 
@@ -148,6 +149,8 @@ func (t TokenType) typeString() string {
 	case 36:
 		return "WHILE"
 	case 37:
+		return "END"
+	case 38:
 		return "EOF"
 	}
 

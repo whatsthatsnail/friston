@@ -10,20 +10,22 @@ program         -> declaration* EOF ;
 declaration     -> varDecl
                 | statement ;
 
-varDecl         -> "var" IDENTIFIER ( "=" expression )? ";" ;
+varDecl         -> "var" IDENTIFIER ( "=" expression )? end ;
 
 statement       -> exprStmt
                 | ifStmt
-                | printStmt 
+                | printStmt
                 | block ;
 
 block           -> "{" declaration* "}" ;
 
-exprStmt        -> expression ";" ;
+exprStmt        -> expression end ;
 ifStmt          -> "if" "(" expression ")" statement ( "else" statement )? ;
 whileStmt       -> "while" "(" expression ")" statement ;
-forStmt         -> "for" "(" declaration ";" expression ";" statement ")"
-printStmt       -> "print" expression ";" ;
+forStmt         -> "for" "(" declaration end expression end statement ")"
+printStmt       -> "print" expression end ;
+
+end             -> "/n" | ";" ;
 
 expression      -> assignment ;
 assignment      -> IDENTIFIER "=" assignment
