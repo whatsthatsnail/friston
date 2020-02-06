@@ -48,6 +48,7 @@ type lexer struct {
 	source string
 	hadError bool
 	repl bool
+	depth int
 }
 
 // Lexer constructor, initializes default values
@@ -59,6 +60,7 @@ func NewLexer(code string, replFlag bool) lexer {
 	l.source = code
 	l.hadError = false
 	l.repl = replFlag
+	l.depth = 0
 
 	return l
 }
@@ -182,16 +184,39 @@ func (l *lexer) getWord() {
 	}
 }
 
-// TODO: Save newlines as tokens and use those to end statements, start and end blocks, etc. Slip the bonds of semicolons!
+func (l *lexer) countIndent() int {
+	count := 0
+	for !l.isAtEnd() && l.peek() == ' ' {
+		count++
+		l.advance()
+	}
 
-// Adds a ';' token if the previous token is not a semicolon or a token that begins or ends a multi-line statement.
-func (l *lexer) addEnd() {
-	if len(l.tokens) > 0 {
-		previous := l.tokens[len(l.tokens) - 1].TType
-		if previous != END && previous != SEMICOLON && previous != LEFT_BRACE && previous != RIGHT_BRACE {
-			l.tokens = append(l.tokens, Token{END, "", nil, l.line})
+	if count % 4 == 0 {
+		count = count / 4
+		return count
+	} else {
+		l.throwError("Indents must be four spaces")
+	}
+
+	return count
+}
+
+// Add INDENT, DEDENT, and adjust l.depth accordin to space count.
+func (l *lexer) getDent() {
+	count := l.countIndent()
+	difference := count - l.depth
+	
+	if difference > 0 {
+		for i := 0; i < difference; i++ {
+			l.tokens = append(l.tokens, Token{INDENT, "", nil, l.line})
+		}
+	} else if difference < 0 {
+		for i := 0; i < -difference; i++ {
+			l.tokens = append(l.tokens, Token{DEDENT, "", nil, l.line})
 		}
 	}
+
+	l.depth = count
 }
 
 // Advances current and adds the current token
@@ -216,7 +241,7 @@ func (l *lexer) scanToken() {
 	case ',':
 		l.addToken(COMMA, nil)
 	case ';':
-		l.addToken(END, nil)
+		l.addToken(SEMICOLON, nil)
 	case ':':
 		l.addToken(COLON, nil)
 	case '.':
@@ -240,6 +265,11 @@ func (l *lexer) scanToken() {
 			for l.peek() != '\n' && !l.isAtEnd() {
 				l.advance()
 			}
+
+			if l.peek() == '\n' {
+				l.advance()
+			}
+
 			break
 		} else {
 			l.addToken(SLASH, nil)
@@ -247,8 +277,14 @@ func (l *lexer) scanToken() {
 
 	// Whitespace and meanginless characters
 	case '\n':
-		l.addEnd()
+		if l.peek() != '\n' {
+			l.tokens = append(l.tokens, Token{NEWLINE, "", nil, l.line})
+		}
 		l.line++
+
+		if l.peek() == ' ' {
+			l.getDent()
+		}
 	case '~':
 		// Skip a newline if it's preceded by a '~' to allow a statement to continue to a new line of text.
 		if l.peek() == '\n' {
@@ -277,13 +313,14 @@ func (l *lexer) scanToken() {
 
 // Loops over all characters in souce, creating tokens as it goes, places EOF token at end of source
 func (l *lexer) ScanTokens() ([]Token, bool) {
+	l.getDent()
 
 	for !l.isAtEnd() {
 		l.start = l.current
 		l.scanToken()
 	}
 
-	l.addEnd()
+	l.tokens = append(l.tokens, Token{NEWLINE, "", nil, l.line})
 	l.tokens = append(l.tokens, Token{EOF, "EOF", nil, l.line})
 	return l.tokens, l.hadError
 }

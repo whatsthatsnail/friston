@@ -1,0 +1,5 @@
+// Comment
+let a = "a"
+    print a
+        print 42
+    print "21"

@@ -8,35 +8,38 @@ Syntax:
 program         -> declaration* EOF ;
 
 declaration     -> varDecl
-                | statement ;
+                |  statement ;
 
-varDecl         -> "var" IDENTIFIER ( "=" expression )? end ;
+varDecl         -> "var" IDENTIFIER ( "=" expression )? NEWLINE ;
 
 statement       -> exprStmt
-                | ifStmt
-                | printStmt
-                | block ;
+                |  ifStmt
+                |  printStmt
+                |  block ;
 
-block           -> "{" declaration* "}" ;
+block           -> INDENT declaration* DEDENT ;
 
-exprStmt        -> expression end ;
+exprStmt        -> expression NEWLINE
+                |  expression ";" ;
 ifStmt          -> "if" "(" expression ")" statement ( "else" statement )? ;
 whileStmt       -> "while" "(" expression ")" statement ;
-forStmt         -> "for" "(" declaration end expression end statement ")"
-printStmt       -> "print" expression end ;
-
-end             -> "/n" | ";" ;
+forStmt         -> "for" "(" declaration expression statement ")"
+printStmt       -> "print" expression NEWLINE ;
 
 expression      -> assignment ;
 assignment      -> IDENTIFIER "=" assignment
-                | equality
+                |  equality
 equality        -> comparison ( ("==" | "!=") comparison)* ;
 comparison      -> addition ( ("<" | "<=" | ">" | ">=") addition)* ;
 addition        -> multiplication ( ("+" | "-") multiplication )* ;
 multiplication  -> unary ( ("*" | "/") unary )* ;
 unary           -> ("-" | "!") unary
-                | primary ;
+                |  primary ;
 
 primary         -> NUMBER | STRING | "true" | "false" | "nil"
-                | "(" expression ")"
-                | IDENTIFIER ;
+                |  "(" expression ")"
+                |  IDENTIFIER ;
+
+INDENT          -> '    ' -> ;
+DEDENT          -> '    ' <- ;
+NEWLINE         -> "/n" ;

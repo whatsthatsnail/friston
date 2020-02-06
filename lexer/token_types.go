@@ -49,7 +49,9 @@ const (
 	LET
 	WHILE
 
-	END
+	INDENT
+	DEDENT
+	NEWLINE
 	EOF
 )
 
@@ -149,8 +151,12 @@ func (t TokenType) typeString() string {
 	case 36:
 		return "WHILE"
 	case 37:
-		return "END"
+		return "INDENT"
 	case 38:
+		return "DEDENT"
+	case 39:
+		return "NEWLINE"
+	case 40:
 		return "EOF"
 	}
 

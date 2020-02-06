@@ -200,7 +200,7 @@ func (p *parser) varDecl() ast.Statement {
 		initializer = p.expression()
 	}
 
-	p.consume(lexer.END, "Expect ';' or new line after variable declaration.")
+	p.consume(lexer.NEWLINE, "Expect new line after variable declaration.")
 	return ast.VarDecl{name, initializer}
 }
 
@@ -221,7 +221,7 @@ func (p *parser) statement() ast.Statement {
 	case lexer.LET:
 		p.advance()
 		return p.varDecl()
-	case lexer.LEFT_BRACE:
+	case lexer.INDENT:
 		p.advance()
 		return p.block()
 	}
@@ -231,7 +231,12 @@ func (p *parser) statement() ast.Statement {
 
 func (p *parser) exprStmt() ast.Statement {
 	expr := p.expression()
-	p.consume(lexer.END, "Expect ';' or new line after expression.")
+
+	if p.match([]lexer.TokenType{lexer.NEWLINE, lexer.SEMICOLON}) {
+		p.consume(p.previous().TType, "Expect ';' or new line after expression.")
+		return ast.ExprStmt{expr}
+	}
+
 	return ast.ExprStmt{expr}
 }
 
@@ -281,17 +286,16 @@ func (p *parser) forStmt() ast.Statement {
 
 func (p *parser) printStmt() ast.Statement {
 	expr := p.expression()
-	p.consume(lexer.END, "Expect ';' or new line after value.")
+	p.consume(lexer.NEWLINE, "Expect ';' or new line after value.")
 	return ast.PrintStmt{expr}
 }
 
 func (p *parser) block() ast.Statement {
 	var stmts []ast.Statement
-	for !p.check(lexer.RIGHT_BRACE) && !p.isAtEnd() {
+	for !p.check(lexer.DEDENT) && !p.isAtEnd() {
 		stmts = append(stmts, p.statement())
 	}
 
-	p.consume(lexer.RIGHT_BRACE, "Expect '}' after block.")
 	return ast.Block{stmts}
 }
 
