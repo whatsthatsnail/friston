@@ -10,7 +10,8 @@ program         -> declaration* EOF ;
 declaration     -> varDecl
                 |  statement ;
 
-varDecl         -> "var" IDENTIFIER ( "=" expression )? NEWLINE ;
+varDecl         -> "let" IDENTIFIER ( "=" expression )? NEWLINE 
+                |  "let" IDENTIFIER ( "=" expression )? ";" ;
 
 statement       -> exprStmt
                 |  ifStmt
@@ -21,9 +22,9 @@ block           -> INDENT declaration* DEDENT ;
 
 exprStmt        -> expression NEWLINE
                 |  expression ";" ;
-ifStmt          -> "if" "(" expression ")" statement ( "else" statement )? ;
-whileStmt       -> "while" "(" expression ")" statement ;
-forStmt         -> "for" "(" declaration expression statement ")"
+ifStmt          -> "if" expression "then" statement ( "else" "then" statement )? ;
+whileStmt       -> "while" expression "then" statement ;
+forStmt         -> "for" declaration expression ";" statement "then" statement ;
 printStmt       -> "print" expression NEWLINE ;
 
 expression      -> assignment ;

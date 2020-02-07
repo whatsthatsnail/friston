@@ -200,7 +200,7 @@ func (p *parser) varDecl() ast.Statement {
 		initializer = p.expression()
 	}
 
-	p.consume(lexer.NEWLINE, "Expect new line after variable declaration.")
+	p.consumeMatch([]lexer.TokenType{lexer.NEWLINE, lexer.SEMICOLON}, "Expect ';' or new line after variable declaration.")
 	return ast.VarDecl{name, initializer}
 }
 
@@ -232,23 +232,23 @@ func (p *parser) statement() ast.Statement {
 func (p *parser) exprStmt() ast.Statement {
 	expr := p.expression()
 
-	if p.match([]lexer.TokenType{lexer.NEWLINE, lexer.SEMICOLON}) {
-		p.consume(p.previous().TType, "Expect ';' or new line after expression.")
-		return ast.ExprStmt{expr}
-	}
+	// Check for non control flow expressions
+	//if !p.check(lexer.THEN) {
+	p.consumeMatch([]lexer.TokenType{lexer.NEWLINE, lexer.SEMICOLON}, "Expect ';' or new line after expression.")
+	//}
 
 	return ast.ExprStmt{expr}
 }
 
 func (p *parser) ifStmt() ast.Statement {
-	p.consume(lexer.LEFT_PAREN, "Expect '(' before if condition.")
 	condition := p.expression()
-	p.consume(lexer.RIGHT_PAREN, "Expect ')' after if condition.")
+	p.consume(lexer.THEN, "Expect 'then' after if condition.")
 
 	thenBranch := p.statement()
 	var elseBranch ast.Statement = nil
 
 	if p.match([]lexer.TokenType{lexer.ELSE}) {
+		p.consume(lexer.THEN, "Expect 'then' after else statement.")
 		elseBranch = p.statement()
 	}
 
@@ -256,9 +256,8 @@ func (p *parser) ifStmt() ast.Statement {
 }
 
 func (p *parser) whileStmt() ast.Statement {
-	p.consume(lexer.LEFT_PAREN, "Expect '(' before while condition.")
 	condition := p.expression()
-	p.consume(lexer.RIGHT_PAREN, "Expect ')' after while condition.")
+	p.consume(lexer.THEN, "Expect 'then' after while condition.")
 
 	loopBranch := p.statement()
 
@@ -267,14 +266,13 @@ func (p *parser) whileStmt() ast.Statement {
 
 // For loops are syntactic sugar, they are expressed as while loops.
 func (p *parser) forStmt() ast.Statement {
-	p.consume(lexer.LEFT_PAREN, "Expect '(' before initialization.")
 	declaration := p.declaration()
 
 	condition := p.equality()
-	p.consumeLexeme(";", "Expect ';' after condition statement.")
+	p.consume(lexer.SEMICOLON, "Expect ';' after condition statement.")
 
 	increment := p.assignment()
-	p.consume(lexer.RIGHT_PAREN, "Expect ')' after increment statement.")
+	p.consume(lexer.THEN, "Expect 'then' after increment statement.")
 
 	loopBranch := p.statement()
 
@@ -286,7 +284,7 @@ func (p *parser) forStmt() ast.Statement {
 
 func (p *parser) printStmt() ast.Statement {
 	expr := p.expression()
-	p.consume(lexer.NEWLINE, "Expect ';' or new line after value.")
+	p.consume(lexer.NEWLINE, "Expect new line after value.")
 	return ast.PrintStmt{expr}
 }
 
@@ -313,9 +311,9 @@ func (p *parser) consume(tType lexer.TokenType, message string) {
 	}
 }
 
-func (p *parser) consumeLexeme(lexeme string, message string) {
-	if !p.isAtEnd() && p.peek().Lexeme == lexeme {
-		p.advance()
+func (p *parser) consumeMatch(types []lexer.TokenType, message string) {
+	if p.match(types) {
+		return
 	} else {
 		p.parseError(p.peek(), message)
 	}

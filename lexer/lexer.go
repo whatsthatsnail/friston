@@ -219,6 +219,16 @@ func (l *lexer) getDent() {
 	l.depth = count
 }
 
+func (l *lexer) getNewline() {
+	previousToken := l.tokens[len(l.tokens) - 1]
+	
+	// Only append NEWLINE if the previous character is not a newline or keyword
+	_, ok := keywords[previousToken.Lexeme]
+	if !ok && previousToken.TType != NEWLINE && previousToken.TType != SEMICOLON {
+		l.tokens = append(l.tokens, Token{NEWLINE, "", nil, l.line})
+	}
+}
+
 // Advances current and adds the current token
 func (l *lexer) scanToken() {
 	char := l.advance()
@@ -277,12 +287,9 @@ func (l *lexer) scanToken() {
 
 	// Whitespace and meanginless characters
 	case '\n':
-		if l.peek() != '\n' {
-			l.tokens = append(l.tokens, Token{NEWLINE, "", nil, l.line})
-		}
+		l.getNewline()
 		l.line++
-
-		if l.peek() == ' ' {
+		if l.peek() != '\n' {
 			l.getDent()
 		}
 	case '~':
@@ -320,7 +327,7 @@ func (l *lexer) ScanTokens() ([]Token, bool) {
 		l.scanToken()
 	}
 
-	l.tokens = append(l.tokens, Token{NEWLINE, "", nil, l.line})
+	l.getNewline()
 	l.tokens = append(l.tokens, Token{EOF, "EOF", nil, l.line})
 	return l.tokens, l.hadError
 }

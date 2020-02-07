@@ -1,16 +1,11 @@
-let a = 1
+let a = 5
 
-if (a > 4) {
+if a > 4 then
     print "true"
-} else {
-    print "false"
-}
 
-while (a < 5) {
-    print a
+while a < 10 then
     a = a + 1
-}
+print a
 
-for (let b = 10; b < 15; b = b + 1) {
+for let b = 0; b < 10; b = b + 1 then
     print b
-}
