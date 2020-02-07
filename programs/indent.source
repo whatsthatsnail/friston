@@ -1,5 +1,6 @@
 // Comment
 let a = "a"
     print a
+        let b = "b"
         print 42
-    print "21"
+        print b

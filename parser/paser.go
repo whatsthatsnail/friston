@@ -2,7 +2,7 @@ package parser
 
 import (
 	"github.com/whatsthatsnail/simple_interpreter/lexer"
-	"github.com/whatsthatsnail/simple_interpreter/ast";
+	"github.com/whatsthatsnail/simple_interpreter/ast"
 	"github.com/whatsthatsnail/simple_interpreter/errors"
 )
 
@@ -294,6 +294,10 @@ func (p *parser) block() ast.Statement {
 	var stmts []ast.Statement
 	for !p.check(lexer.DEDENT) && !p.isAtEnd() {
 		stmts = append(stmts, p.statement())
+	}
+
+	if !p.isAtEnd() {
+		p.consume(lexer.DEDENT, "Expect dedent after block statement.")
 	}
 
 	return ast.Block{stmts}
