@@ -2,8 +2,8 @@ package environment
 
 import (
 	"fmt";
-	"github.com/whatsthatsnail/simple_interpreter/lexer";
-	"github.com/whatsthatsnail/simple_interpreter/errors"
+	"friston/lexer"
+	"friston/errors"
 )
 
 type Environment struct {

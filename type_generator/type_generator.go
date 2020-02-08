@@ -3,7 +3,7 @@ package type_generator
 import (
 	"fmt";
 	"strings";
-	"github.com/whatsthatsnail/simple_interpreter/lexer"
+	"friston/lexer"
 )
 
 // An ugly, ugly, function to create a complete ast.go source file from an input of tokens.

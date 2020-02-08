@@ -3,7 +3,7 @@ package lexer
 import (
 	"fmt";
 	"strconv";
-	"github.com/whatsthatsnail/simple_interpreter/errors"
+	"friston/errors"
 )
 
 // Simple helper functions to avoid importing a whole module for a one-liner

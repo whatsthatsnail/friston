@@ -1,6 +1,6 @@
 package ast
 
-import "github.com/whatsthatsnail/simple_interpreter/lexer"
+import "friston/lexer"
 
 // Visitor interface (all other visitors must implement this)
 type Visitor interface {

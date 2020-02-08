@@ -5,10 +5,10 @@ import (
 	"bufio";
 	"os";
 	"io/ioutil";
-	"github.com/whatsthatsnail/simple_interpreter/lexer";
-	"github.com/whatsthatsnail/simple_interpreter/type_generator";
-	"github.com/whatsthatsnail/simple_interpreter/parser";
-	"github.com/whatsthatsnail/simple_interpreter/ast";
+	"friston/lexer";
+	"friston/type_generator";
+	"friston/parser";
+	"friston/ast";
 )
 
 // Gets arguments when using 'go run *.go -- ...'

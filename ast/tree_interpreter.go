@@ -3,9 +3,9 @@ package ast
 import (
 	"reflect"
 	"fmt";
-	"github.com/whatsthatsnail/simple_interpreter/lexer";
-	"github.com/whatsthatsnail/simple_interpreter/errors";
-	env "github.com/whatsthatsnail/simple_interpreter/environment"
+	"friston/lexer";
+	"friston/errors";
+	env "friston/environment"
 )
 
 type Interpreter struct{

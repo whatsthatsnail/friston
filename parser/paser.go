@@ -1,9 +1,9 @@
 package parser
 
 import (
-	"github.com/whatsthatsnail/simple_interpreter/ast"
-	"github.com/whatsthatsnail/simple_interpreter/errors"
-	"github.com/whatsthatsnail/simple_interpreter/lexer"
+	"friston/ast"
+	"friston/errors"
+	"friston/lexer"
 )
 
 type parser struct {
