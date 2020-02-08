@@ -89,7 +89,6 @@ func (l *lexer) peek() rune {
 	} else {
 		return '\n'
 	}
-	return '\n'
 }
 
 // Returns the next character without consuming it, as long as there is another character peek
@@ -236,10 +235,6 @@ func (l *lexer) scanToken() {
 	switch char {
 
 	// Creates single-character tokens
-	case '+':
-		l.addToken(PLUS, nil)
-	case '-':
-		l.addToken(MINUS, nil)
 	case '(':
 		l.addToken(LEFT_PAREN, nil)
 	case ')':
@@ -260,6 +255,10 @@ func (l *lexer) scanToken() {
 		l.addToken(STAR, nil)
 
 	// Create one or two-character tokens
+	case '+':
+		l.addToken(l.match('+', PLUS_PLUS, PLUS), nil)
+	case '-':
+		l.addToken(l.match('-', MINUS_MINUS, MINUS), nil)
 	case '=':
 		l.addToken(l.match('=', EQUAL_EQUAL, EQUAL), nil)
 	case '!':
@@ -269,7 +268,7 @@ func (l *lexer) scanToken() {
 	case '>':
 		l.addToken(l.match('=', GREATER_EQUAL, GREATER), nil)
 
-	// Differentiate betweek SLASH and a comment (which ignores the rest of the line)
+	// Differentiate between SLASH and a comment (which ignores the rest of the line)
 	case '/':
 		if l.peek() == '/' {
 			for l.peek() != '\n' && !l.isAtEnd() {

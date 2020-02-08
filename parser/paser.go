@@ -1,9 +1,9 @@
 package parser
 
 import (
-	"github.com/whatsthatsnail/simple_interpreter/lexer"
 	"github.com/whatsthatsnail/simple_interpreter/ast"
 	"github.com/whatsthatsnail/simple_interpreter/errors"
+	"github.com/whatsthatsnail/simple_interpreter/lexer"
 )
 
 type parser struct {
@@ -98,6 +98,36 @@ func (p *parser) assignment() ast.Expression {
 		}
 
 		errors.ThrowError(equals.Line, "Invalid assignment target.")
+	}
+
+	// Implement increment (++) and decrement (--) as sugar, ex: translate a++ to a = a + 1
+	if p.match([]lexer.TokenType{lexer.PLUS_PLUS}) {
+		operator := lexer.Token{lexer.PLUS, "+", nil, p.previous().Line}
+		right := ast.Literal{lexer.Token{lexer.NUMBER, "1", 1.0, p.previous().Line}}
+		binary := ast.Binary{expr, operator, right}
+
+		vr, ok := expr.(ast.Variable)
+		if ok {
+			name := vr.Name
+			return ast.Assignment{name, binary}
+		}
+
+		errors.ThrowError(p.previous().Line, "Invalid increment target.")
+	}
+
+	// Decrement
+	if p.match([]lexer.TokenType{lexer.MINUS_MINUS}) {
+		operator := lexer.Token{lexer.MINUS, "-", nil, p.previous().Line}
+		right := ast.Literal{lexer.Token{lexer.NUMBER, "1", 1.0, p.previous().Line}}
+		binary := ast.Binary{expr, operator, right}
+
+		vr, ok := expr.(ast.Variable)
+		if ok {
+			name := vr.Name
+			return ast.Assignment{name, binary}
+		}
+
+		errors.ThrowError(p.previous().Line, "Invalid decrement target.")
 	}
 
 	return expr
@@ -325,7 +355,7 @@ func (p *parser) parseError(token lexer.Token, message string) {
 	p.synchronize()
 }
 
-// TODO: Sychronize to previous statement when a parseError is called.
+// TODO: Synchronize to previous statement when a parseError is called.
 func (p *parser) synchronize() {
 	p.advance()
 

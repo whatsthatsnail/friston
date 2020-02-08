@@ -5,9 +5,7 @@ type TokenType int
 
 const (
 	// Single-character
-	PLUS TokenType = iota
-	MINUS
-	LEFT_PAREN
+	LEFT_PAREN TokenType = iota
 	RIGHT_PAREN
 	LEFT_BRACE
 	RIGHT_BRACE
@@ -19,6 +17,10 @@ const (
 	SLASH
 
 	// One or two characters
+	PLUS
+	PLUS_PLUS
+	MINUS
+	MINUS_MINUS
 	EQUAL
 	EQUAL_EQUAL
 	BANG
@@ -79,88 +81,92 @@ var keywords = map[string]TokenType{
 func (t TokenType) typeString() string {
 	switch t {
 	case 0:
-		return "PLUS"
-	case 1:
-		return "MINUS"
-	case 2:
 		return "LEFT_PAREN"
-	case 3:
+	case 1:
 		return "RIGHT_PAREN"
-	case 4:
+	case 2:
 		return "LEFT_BRACE"
-	case 5:
+	case 3:
 		return "RIGHT_BRACE"
-	case 6:
+	case 4:
 		return "COMMA"
-	case 7:
+	case 5:
 		return "DOT"
-	case 8:
+	case 6:
 		return "SEMICOLON"
-	case 9:
+	case 7:
 		return "COLON"
-	case 10:
+	case 8:
 		return "STAR"
-	case 11:
+	case 9:
 		return "SLASH"
+	case 10:
+		return "PLUS"
+	case 11:
+		return "PLUS_PLUS"
 	case 12:
-		return "EQUAL"
+		return "MINUS"
 	case 13:
-		return "EQUAL_EQUAL"
+		return "MINUS_MINUS"
 	case 14:
-		return "BANG"
+		return "EQUAL"
 	case 15:
-		return "BANG_EQUAL"
+		return "EQUAL_EQUAL"
 	case 16:
-		return "LESS"
+		return "BANG"
 	case 17:
-		return "LESS_EQUAL"
+		return "BANG_EQUAL"
 	case 18:
-		return "GREATER"
+		return "LESS"
 	case 19:
-		return "GREATER_EQUAL"
+		return "LESS_EQUAL"
 	case 20:
-		return "NUMBER"
+		return "GREATER"
 	case 21:
-		return "STRING"
+		return "GREATER_EQUAL"
 	case 22:
-		return "IDENTIFIER"
+		return "NUMBER"
 	case 23:
-		return "AND"
+		return "STRING"
 	case 24:
-		return "CLASS"
+		return "IDENTIFIER"
 	case 25:
-		return "ELSE"
+		return "AND"
 	case 26:
-		return "FALSE"
+		return "CLASS"
 	case 27:
-		return "FOR"
+		return "ELSE"
 	case 28:
-		return "FUNC"
+		return "FALSE"
 	case 29:
-		return "IF"
+		return "FOR"
 	case 30:
-		return "NIL"
+		return "FUNC"
 	case 31:
-		return "OR"
+		return "IF"
 	case 32:
-		return "PRINT"
+		return "NIL"
 	case 33:
-		return "THEN"
+		return "OR"
 	case 34:
-		return "THIS"
+		return "PRINT"
 	case 35:
-		return "TRUE"
+		return "THEN"
 	case 36:
-		return "LET"
+		return "THIS"
 	case 37:
-		return "WHILE"
+		return "TRUE"
 	case 38:
-		return "INDENT"
+		return "LET"
 	case 39:
-		return "DEDENT"
+		return "WHILE"
 	case 40:
-		return "NEWLINE"
+		return "INDENT"
 	case 41:
+		return "DEDENT"
+	case 42:
+		return "NEWLINE"
+	case 43:
 		return "EOF"
 	}
 
