@@ -165,6 +165,26 @@ func (i Interpreter) visitBinary(b Binary) interface{} {
 	return nil
 }
 
+func (i Interpreter) visitLogic(l Logic) interface{} {
+	left := i.evaluate(l.X)
+
+	if l.Op.TType == lexer.OR {
+		if isTruth(left) {
+			return true
+		} else {
+			return isTruth(i.evaluate(l.Y))
+		}
+	}
+
+	if l.Op.TType == lexer.AND {
+		right := i.evaluate(l.Y)
+		return isTruth(left) && isTruth(right)
+	}
+
+	// Unreachable.
+	return nil
+}
+
 func (i Interpreter) visitUnary(u Unary) interface{} {
 	right := i.evaluate(u.X)
 

@@ -178,11 +178,16 @@ func (l *lexer) getWord() {
 		l.addToken(NIL, nil)
 	} else if keywords[word] == 0 {
 		l.addToken(IDENTIFIER, word)
+	} else if  word == "true" {
+		l.addToken(TRUE, true)
+	} else if  word == "false" {
+		l.addToken(FALSE, false)
 	} else {
 		l.addToken(keywords[word], word)
 	}
 }
 
+// Count spaces and advance through them.
 func (l *lexer) countIndent() int {
 	count := 0
 	for !l.isAtEnd() && l.peek() == ' ' {
@@ -200,30 +205,34 @@ func (l *lexer) countIndent() int {
 	return count
 }
 
-// Add INDENT, DEDENT, and adjust l.depth accordin to space count.
+// Add INDENT, DEDENT, and adjust l.depth according to space count.
 func (l *lexer) getDent() {
 	count := l.countIndent()
-	difference := count - l.depth
-	
-	if difference > 0 {
-		for i := 0; i < difference; i++ {
-			l.tokens = append(l.tokens, Token{INDENT, "", nil, l.line})
-		}
-	} else if difference < 0 {
-		for i := 0; i < -difference; i++ {
-			l.tokens = append(l.tokens, Token{DEDENT, "", nil, l.line})
-		}
-	}
 
-	l.depth = count
+	// Disregard whitespace before indented comments.
+	possibleComment := string(l.source[l.current:l.current + 2])
+	if possibleComment != "//" {
+		difference := count - l.depth
+
+		if difference > 0 {
+			for i := 0; i < difference; i++ {
+				l.tokens = append(l.tokens, Token{INDENT, "", nil, l.line})
+			}
+		} else if difference < 0 {
+			for i := 0; i < -difference; i++ {
+				l.tokens = append(l.tokens, Token{DEDENT, "", nil, l.line})
+			}
+		}
+
+		l.depth = count
+	}
 }
 
 func (l *lexer) getNewline() {
 	previousToken := l.tokens[len(l.tokens) - 1]
 	
-	// Only append NEWLINE if the previous character is not a newline or keyword
-	_, ok := keywords[previousToken.Lexeme]
-	if !ok && previousToken.TType != NEWLINE && previousToken.TType != SEMICOLON {
+	// Only append NEWLINE if the previous character is not a newline or 'then' keyword
+	if previousToken.TType != NEWLINE && previousToken.TType != SEMICOLON && previousToken.TType != THEN {
 		l.tokens = append(l.tokens, Token{NEWLINE, "", nil, l.line})
 	}
 }
@@ -275,7 +284,7 @@ func (l *lexer) scanToken() {
 				l.advance()
 			}
 
-			if l.peek() == '\n' {
+			if l.peek() == '\n' && !l.isAtEnd() {
 				l.advance()
 			}
 
@@ -284,7 +293,7 @@ func (l *lexer) scanToken() {
 			l.addToken(SLASH, nil)
 		}
 
-	// Whitespace and meanginless characters
+	// Whitespace and meaningless characters
 	case '\n':
 		l.getNewline()
 		l.line++

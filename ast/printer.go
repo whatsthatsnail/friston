@@ -13,6 +13,13 @@ func (printer ASTPrinter) visitBinary(b Binary) interface{} {
 	return nil
 }
 
+func (printer ASTPrinter) visitLogic(l Logic) interface{} {
+	l.X.Accept(printer)
+	fmt.Printf(" %s ", l.Op.Lexeme)
+	l.Y.Accept(printer)
+	return nil
+}
+
 func (printer ASTPrinter) visitUnary(u Unary) interface{} {
 	fmt.Printf("(")
 	fmt.Printf(" %s ", u.Op.Lexeme)

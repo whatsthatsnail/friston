@@ -1,8 +1,8 @@
 package type_generator
 
 import (
-	"fmt";
-	"strings";
+	"fmt"
+	"strings"
 	"friston/lexer"
 )
 

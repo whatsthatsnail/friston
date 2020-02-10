@@ -29,7 +29,9 @@ printStmt       -> "print" expression NEWLINE ;
 
 expression      -> assignment ;
 assignment      -> IDENTIFIER "=" assignment
-                |  equality
+                |  logic_or :
+logicOr        -> logic_and ( "or" logic_and )* ;
+logicAnd       -> equality ( "and" equality )* ;
 equality        -> comparison ( ("==" | "!=") comparison)* ;
 comparison      -> addition ( ("<" | "<=" | ">" | ">=") addition)* ;
 addition        -> multiplication ( ("+" | "-") multiplication )* ;

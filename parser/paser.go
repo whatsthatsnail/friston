@@ -85,8 +85,9 @@ func (p *parser) expression() ast.Expression {
 }
 
 func (p *parser) assignment() ast.Expression {
-	expr := p.equality()
+	expr := p.or()
 
+	// IDENTIFIER "=" assignment
 	if p.match([]lexer.TokenType{lexer.EQUAL}) {
 		equals := p.previous()
 		value := p.assignment()
@@ -128,6 +129,30 @@ func (p *parser) assignment() ast.Expression {
 		}
 
 		errors.ThrowError(p.previous().Line, "Invalid decrement target.")
+	}
+
+	return expr
+}
+
+func (p *parser) or() ast.Expression {
+	expr := p.and()
+
+	for p.match([]lexer.TokenType{lexer.OR}) {
+		operator := p.previous()
+		value := p.and()
+		expr = ast.Logic{expr, operator, value}
+	}
+
+	return expr
+}
+
+func (p *parser) and() ast.Expression {
+	expr := p.equality()
+
+	for p.match([]lexer.TokenType{lexer.AND}) {
+		operator := p.previous()
+		value := p.equality()
+		expr = ast.Logic{expr, operator, value}
 	}
 
 	return expr

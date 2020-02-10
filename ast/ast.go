@@ -5,6 +5,7 @@ import "friston/lexer"
 // Visitor interface (all other visitors must implement this)
 type Visitor interface {
 	visitBinary(b Binary) interface{}
+	visitLogic(l Logic) interface{}
 	visitUnary(u Unary) interface{}
 	visitGroup(g Group) interface{}
 	visitLiteral(l Literal) interface{}
@@ -32,6 +33,16 @@ type Binary struct {
 
 func (b Binary) Accept(v Visitor) interface{} {
 	return v.visitBinary(b)
+}
+
+type Logic struct {
+	X Expression
+	Op lexer.Token
+	Y Expression
+}
+
+func (l Logic) Accept(v Visitor) interface{} {
+	return v.visitLogic(l)
 }
 
 type Unary struct {
