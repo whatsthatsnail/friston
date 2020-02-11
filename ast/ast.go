@@ -13,11 +13,11 @@ type Visitor interface {
 	visitAssignment(a Assignment) interface{}
 	visitCall(c Call) interface{}
 
-	visitExprStmt(e ExprStmt) interface{}
-	visitIfStmt(stmt IfStmt) interface{}
-	visitWhileStmt(stmt WhileStmt) interface {}
-	visitVarDecl(d VarDecl) interface{}
-	visitBlock(b Block) interface{}
+	visitExprStmt(e ExprStmt)
+	visitIfStmt(stmt IfStmt)
+	visitWhileStmt(stmt WhileStmt)
+	visitVarDecl(d VarDecl)
+	visitBlock(b Block)
 }
 
 // Node types:
@@ -110,7 +110,8 @@ type ExprStmt struct {
 }
 
 func (e ExprStmt) Accept(v Visitor) interface{} {
-	return v.visitExprStmt(e)
+	v.visitExprStmt(e)
+	return nil
 }
 
 type IfStmt struct {
@@ -120,7 +121,8 @@ type IfStmt struct {
 }
 
 func (i IfStmt) Accept(v Visitor) interface{} {
-	return v.visitIfStmt(i)
+	v.visitIfStmt(i)
+	return nil
 }
 
 type WhileStmt struct {
@@ -129,7 +131,8 @@ type WhileStmt struct {
 }
 
 func (w WhileStmt) Accept(v Visitor) interface {} {
-	return v.visitWhileStmt(w)
+	v.visitWhileStmt(w)
+	return nil
 }
 
 type VarDecl struct {
@@ -138,7 +141,8 @@ type VarDecl struct {
 }
 
 func (d VarDecl) Accept(v Visitor) interface{} {
-	return v.visitVarDecl(d)
+	v.visitVarDecl(d)
+	return nil
 }
 
 type Block struct {
@@ -146,5 +150,6 @@ type Block struct {
 }
 
 func (b Block) Accept(v Visitor) interface{} {
-	return v.visitBlock(b)
+	v.visitBlock(b)
+	return nil
 }

@@ -254,45 +254,38 @@ func (i Interpreter) visitCall(c Call) interface{} {
 
 // Statement visitor methods:
 
-func (i Interpreter) visitExprStmt(e ExprStmt) interface {} {
+func (i Interpreter) visitExprStmt(e ExprStmt) {
 	value := i.evaluate(e.Expr)
 
 	if i.Repl {
 		fmt.Printf("%v\n", value)
 	}
-
-	return nil
 }
 
-func (i Interpreter) visitIfStmt(stmt IfStmt) interface {} {
+func (i Interpreter) visitIfStmt(stmt IfStmt) {
 	if isTruth(i.evaluate(stmt.Condition)) {
 		i.execute(stmt.ThenBranch)
 	} else if stmt.ElseBranch != nil {
 		i.execute(stmt.ElseBranch)
 	}
-
-	return nil
 }
 
-func (i Interpreter) visitWhileStmt(stmt WhileStmt) interface {} {
+func (i Interpreter) visitWhileStmt(stmt WhileStmt) {
 	for isTruth(i.evaluate(stmt.Condition)) {
 		i.execute(stmt.LoopBranch)
 	}
-
-	return nil
 }
 
-func (i Interpreter) visitVarDecl(d VarDecl) interface {} {
+func (i Interpreter) visitVarDecl(d VarDecl) {
 	var value interface{}
 	if d.Initializer != nil {
 		value = i.evaluate(d.Initializer)
 	}
 
 	i.environment.Declare(d.Name.Lexeme, value)
-	return nil
 }
 
-func (i Interpreter) visitBlock(b Block) interface{} {
+func (i Interpreter) visitBlock(b Block) {
 	// Create a new environment, enclosed by the current scope.
 	enclosing := i.environment
 	enclosed := env.NewEnvironment()
@@ -304,7 +297,4 @@ func (i Interpreter) visitBlock(b Block) interface{} {
 	for _, s := range(b.Stmts) {
 		i.execute(s)
 	}
-
-
-	return nil
 }
