@@ -51,6 +51,17 @@ func (printer ASTPrinter) visitAssignment(a Assignment) interface{} {
 	return nil
 }
 
+func (printer ASTPrinter) visitCall(c Call) interface{} {
+	c.Callee.Accept(printer)
+	fmt.Printf("(")
+	for _, arg := range(c.Arguments) {
+		arg.Accept(printer)
+	}
+	fmt.Printf(")\n")
+
+	return nil
+}
+
 func (printer ASTPrinter) visitExprStmt(e ExprStmt) interface {} {
 	e.Expr.Accept(printer)
 	fmt.Printf(";\n")

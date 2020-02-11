@@ -213,7 +213,29 @@ func (p *parser) unary() ast.Expression {
 		return ast.Unary{operator, right}
 	}
 
-	return p.primary()
+	return p.call()
+}
+
+func (p *parser) call() ast.Expression {
+	expr := p.primary()
+	
+	var arguments []ast.Expression
+	if p.match([]lexer.TokenType{lexer.LEFT_PAREN}) {
+		paren := p.previous()
+
+		for !p.check(lexer.RIGHT_PAREN) {
+			arg := p.expression()
+			arguments = append(arguments, arg)
+			if p.peek().TType != lexer.RIGHT_PAREN {
+				p.consume(lexer.COMMA, "Arguments must be separated by ','.")
+			}
+		}
+
+		p.consume(lexer.RIGHT_PAREN, "Arguments must end with ')'.")
+		return ast.Call{expr, paren, arguments}
+	}
+
+	return expr
 }
 
 func (p *parser) primary() ast.Expression {

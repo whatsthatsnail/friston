@@ -36,9 +36,8 @@ equality        -> comparison ( ("==" | "!=") comparison)* ;
 comparison      -> addition ( ("<" | "<=" | ">" | ">=") addition)* ;
 addition        -> multiplication ( ("+" | "-") multiplication )* ;
 multiplication  -> unary ( ("*" | "/") unary )* ;
-unary           -> ("-" | "!") unary
-                |  primary ;
-
+unary           -> ("-" | "!") unary | call ;
+call            -> primary ( "(" arguments? ")" )* ;
 primary         -> NUMBER | STRING | "true" | "false" | "nil"
                 |  "(" expression ")"
                 |  IDENTIFIER ;

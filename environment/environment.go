@@ -38,10 +38,10 @@ func (e *Environment) Get(name lexer.Token) interface{} {
 }
 
 // Assign value to a variable in current scope, or parent scopes, if it exists.
-func (e *Environment) Assign(name lexer.Token, value interface{}) {
-	_, ok := e.Values[name.Lexeme]
+func (e *Environment) Assign(name string, value interface{}) {
+	_, ok := e.Values[name]
 	if ok {
-		e.Values[name.Lexeme] = value
+		e.Values[name] = value
 		return
 	}
 
@@ -52,10 +52,12 @@ func (e *Environment) Assign(name lexer.Token, value interface{}) {
 	} 
 
 	// TODO: Stop execution with runtime error.
-	errors.ThrowError(name.Line, fmt.Sprintf("Undefined variable '%s'.", name.Lexeme))
+	// TODO: Fix line number.
+	// TODO: Convert name back to token, not string, in all uses.
+	errors.ThrowError(0, fmt.Sprintf("Undefined variable '%s'.", name))
 }
 
 // Declare a new variable in the current scope
-func (e *Environment) Declare(name lexer.Token, value interface{}) {
-	e.Values[name.Lexeme] = value
+func (e *Environment) Declare(name string, value interface{}) {
+	e.Values[name] = value
 }

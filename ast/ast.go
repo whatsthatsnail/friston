@@ -11,6 +11,7 @@ type Visitor interface {
 	visitLiteral(l Literal) interface{}
 	visitVariable(vr Variable) interface{}
 	visitAssignment(a Assignment) interface{}
+	visitCall(c Call) interface{}
 
 	visitExprStmt(e ExprStmt) interface{}
 	visitIfStmt(stmt IfStmt) interface{}
@@ -87,6 +88,16 @@ type Assignment struct {
 
 func (a Assignment) Accept(v Visitor) interface{} {
 	return v.visitAssignment(a)
+}
+
+type Call struct {
+	Callee Expression
+	Paren lexer.Token
+	Arguments []Expression
+}
+
+func (c Call) Accept(v Visitor) interface{} {
+	return v.visitCall(c)
 }
 
 //Statement types:

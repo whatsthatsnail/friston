@@ -2,14 +2,15 @@ package ast
 
 import (
 	"reflect"
-	"fmt";
-	"friston/lexer";
-	"friston/errors";
+	"fmt"
+	"friston/lexer"
+	"friston/errors"
 	env "friston/environment"
 )
 
 type Interpreter struct{
 	Repl bool
+	globals env.Environment
 	environment env.Environment
 }
 
@@ -17,7 +18,11 @@ func NewInterpreter(repl bool) Interpreter {
 	i := Interpreter{}
 	i.Repl = repl
 	// Define global scope envionment (parent = nil)
-	i.environment = env.NewEnvironment()
+	i.globals = env.NewEnvironment()
+	
+	i.globals.Declare("clock",  ClockFunc{})
+	
+	i.environment = i.globals
 	return i
 }
 
@@ -216,8 +221,32 @@ func (i Interpreter) visitVariable(vr Variable) interface{} {
 func (i Interpreter) visitAssignment(a Assignment) interface{} {
 	value := i.evaluate(a.Value)
 
-	i.environment.Assign(a.Name, value)
+	i.environment.Assign(a.Name.Lexeme, value)
 	return value
+}
+
+func (i Interpreter) visitCall(c Call) interface{} {
+	// Callee should probably be an IDENTIFIER, but really it can be anything, almost.
+	callee := i.evaluate(c.Callee)
+
+	var arguments []interface{}
+	for _, arg := range(c.Arguments) {
+		arguments = append(arguments, i.evaluate(arg))
+	}
+
+	// Cast the callee to type callable.function, and call it if it is a callable type.
+	function, ok := callee.(Function)
+	if !ok {
+		// TODO: Runtime errors!
+		errors.ThrowError(c.Paren.Line, "Can only call functions.")
+	}
+	
+	// Check function arity. (Number of arguments)
+	if len(arguments) != function.Arity() {
+		errors.ThrowError(c.Paren.Line, "Expected " + string(function.Arity()) + " but got " + string(len(arguments)) + " arguments.")
+	}
+
+	return function.Call(i, arguments)
 }
 
 // Statement visitor methods:
@@ -262,7 +291,7 @@ func (i Interpreter) visitVarDecl(d VarDecl) interface {} {
 		value = i.evaluate(d.Initializer)
 	}
 
-	i.environment.Declare(d.Name, value)
+	i.environment.Declare(d.Name.Lexeme, value)
 	return nil
 }
 
