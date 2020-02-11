@@ -16,7 +16,6 @@ type Visitor interface {
 	visitExprStmt(e ExprStmt) interface{}
 	visitIfStmt(stmt IfStmt) interface{}
 	visitWhileStmt(stmt WhileStmt) interface {}
-	visitPrintStmt(p PrintStmt) interface{}
 	visitVarDecl(d VarDecl) interface{}
 	visitBlock(b Block) interface{}
 }
@@ -131,14 +130,6 @@ type WhileStmt struct {
 
 func (w WhileStmt) Accept(v Visitor) interface {} {
 	return v.visitWhileStmt(w)
-}
-
-type PrintStmt struct {
-	Expr Expression
-}
-
-func (p PrintStmt) Accept(v Visitor) interface{} {
-	return v.visitPrintStmt(p)
 }
 
 type VarDecl struct {

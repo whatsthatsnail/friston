@@ -19,8 +19,11 @@ func NewInterpreter(repl bool) Interpreter {
 	i.Repl = repl
 	// Define global scope envionment (parent = nil)
 	i.globals = env.NewEnvironment()
-	
-	i.globals.Declare("clock",  ClockFunc{})
+
+	// Declare all native functions in the global environment
+	for k, v := range Natives {
+		i.globals.Declare(k, v)
+	}
 	
 	i.environment = i.globals
 	return i
@@ -276,12 +279,6 @@ func (i Interpreter) visitWhileStmt(stmt WhileStmt) interface {} {
 		i.execute(stmt.LoopBranch)
 	}
 
-	return nil
-}
-
-func (i Interpreter) visitPrintStmt(p PrintStmt) interface {} {
-	value := i.evaluate(p.Expr)
-	fmt.Printf("%v\n", value)
 	return nil
 }
 

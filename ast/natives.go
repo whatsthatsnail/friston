@@ -1,17 +1,40 @@
 package ast
 
 import (
+	"fmt"
 	"time"
 )
 
-// TODO: ClockFunc seems to not be a Function, fix this.
+var Natives = map[string]Function{
+	"clock" : clockFunc{},
+	"println" : printlnFunc{},
+	"print" : printFunc{},
+}
 
 // Returns Unix time in seconds.
-type ClockFunc struct{}
+type clockFunc struct{}
 
-func (c ClockFunc) Arity() int { return 0 }
+func (c clockFunc) Arity() int { return 0 }
 
-func (c ClockFunc) Call(i Interpreter, args interface{}) interface{} {
+func (c clockFunc) Call(i Interpreter, args []interface{}) interface{} {
 	now := time.Now()
-	return float64(now.UnixNano()) / 1000000000
+	return float64(now.UnixNano()) / 1000000
+}
+
+type printFunc struct{}
+
+func (p printFunc) Arity() int { return 1 }
+
+func (p printFunc) Call(i Interpreter, args []interface{}) interface{} {
+	fmt.Print(args[0])
+	return nil
+}
+
+type printlnFunc struct{}
+
+func (p printlnFunc) Arity() int { return 1 }
+
+func (p printlnFunc) Call(i Interpreter, args []interface{}) interface{} {
+	fmt.Println(args[0])
+	return nil
 }

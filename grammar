@@ -15,7 +15,6 @@ varDecl         -> "let" IDENTIFIER ( "=" expression )? NEWLINE
 
 statement       -> exprStmt
                 |  ifStmt
-                |  printStmt
                 |  block ;
 
 block           -> INDENT declaration* DEDENT ;

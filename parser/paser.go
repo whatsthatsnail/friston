@@ -292,9 +292,6 @@ func (p *parser) statement() ast.Statement {
 	case lexer.FOR:
 		p.advance()
 		return p.forStmt()
-	case lexer.PRINT:
-		p.advance()
-		return p.printStmt()
 	case lexer.LET:
 		p.advance()
 		return p.varDecl()
@@ -357,12 +354,6 @@ func (p *parser) forStmt() ast.Statement {
 	forLoop := []ast.Statement{declaration, ast.WhileStmt{condition, block}}
 
 	return ast.Block{forLoop}
-}
-
-func (p *parser) printStmt() ast.Statement {
-	expr := p.expression()
-	p.consume(lexer.NEWLINE, "Expect new line after value.")
-	return ast.PrintStmt{expr}
 }
 
 func (p *parser) block() ast.Statement {

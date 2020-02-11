@@ -92,13 +92,6 @@ func (printer ASTPrinter) visitWhileStmt(stmt WhileStmt) interface {} {
 	return nil
 }
 
-func (printer ASTPrinter) visitPrintStmt(p PrintStmt) interface {} {
-	fmt.Printf("print ")
-	p.Expr.Accept(printer)
-	fmt.Printf(";\n")
-	return nil
-}
-
 func (printer ASTPrinter) visitVarDecl(d VarDecl) interface{} {
 	fmt.Printf("let %s = ", d.Name.Lexeme)
 	d.Initializer.Accept(printer)
