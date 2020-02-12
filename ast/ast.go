@@ -2,22 +2,22 @@ package ast
 
 import "friston/lexer"
 
-// Visitor interface (all other visitors must implement this)
+// Visitor interface (all other Visitors must implement this)
 type Visitor interface {
-	visitBinary(b Binary) interface{}
-	visitLogic(l Logic) interface{}
-	visitUnary(u Unary) interface{}
-	visitGroup(g Group) interface{}
-	visitLiteral(l Literal) interface{}
-	visitVariable(vr Variable) interface{}
-	visitAssignment(a Assignment) interface{}
-	visitCall(c Call) interface{}
+	VisitBinary(b Binary) interface{}
+	VisitLogic(l Logic) interface{}
+	VisitUnary(u Unary) interface{}
+	VisitGroup(g Group) interface{}
+	VisitLiteral(l Literal) interface{}
+	VisitVariable(vr Variable) interface{}
+	VisitAssignment(a Assignment) interface{}
+	VisitCall(c Call) interface{}
 
-	visitExprStmt(e ExprStmt)
-	visitIfStmt(stmt IfStmt)
-	visitWhileStmt(stmt WhileStmt)
-	visitVarDecl(d VarDecl)
-	visitBlock(b Block)
+	VisitExprStmt(e ExprStmt)
+	VisitIfStmt(stmt IfStmt)
+	VisitWhileStmt(stmt WhileStmt)
+	VisitVarDecl(d VarDecl)
+	VisitBlock(b Block)
 }
 
 // Node types:
@@ -32,7 +32,7 @@ type Binary struct {
 }
 
 func (b Binary) Accept(v Visitor) interface{} {
-	return v.visitBinary(b)
+	return v.VisitBinary(b)
 }
 
 type Logic struct {
@@ -42,7 +42,7 @@ type Logic struct {
 }
 
 func (l Logic) Accept(v Visitor) interface{} {
-	return v.visitLogic(l)
+	return v.VisitLogic(l)
 }
 
 type Unary struct {
@@ -51,7 +51,7 @@ type Unary struct {
 }
 
 func (u Unary) Accept(v Visitor) interface{} {
-	 return v.visitUnary(u)
+	 return v.VisitUnary(u)
 }
 
 type Group struct {
@@ -61,7 +61,7 @@ type Group struct {
 }
 
 func (g Group) Accept(v Visitor) interface{} {
-	 return v.visitGroup(g)
+	 return v.VisitGroup(g)
 }
 
 type Literal struct {
@@ -69,7 +69,7 @@ type Literal struct {
 }
 
 func (l Literal) Accept(v Visitor) interface{} {
-	 return v.visitLiteral(l)
+	 return v.VisitLiteral(l)
 }
 
 type Variable struct {
@@ -77,7 +77,7 @@ type Variable struct {
 }
 
 func (vr Variable) Accept(v Visitor) interface{} {
-	return v.visitVariable(vr)
+	return v.VisitVariable(vr)
 }
 
 type Assignment struct {
@@ -86,7 +86,7 @@ type Assignment struct {
 }
 
 func (a Assignment) Accept(v Visitor) interface{} {
-	return v.visitAssignment(a)
+	return v.VisitAssignment(a)
 }
 
 type Call struct {
@@ -96,7 +96,7 @@ type Call struct {
 }
 
 func (c Call) Accept(v Visitor) interface{} {
-	return v.visitCall(c)
+	return v.VisitCall(c)
 }
 
 //Statement types:
@@ -110,7 +110,7 @@ type ExprStmt struct {
 }
 
 func (e ExprStmt) Accept(v Visitor) interface{} {
-	v.visitExprStmt(e)
+	v.VisitExprStmt(e)
 	return nil
 }
 
@@ -121,7 +121,7 @@ type IfStmt struct {
 }
 
 func (i IfStmt) Accept(v Visitor) interface{} {
-	v.visitIfStmt(i)
+	v.VisitIfStmt(i)
 	return nil
 }
 
@@ -131,7 +131,7 @@ type WhileStmt struct {
 }
 
 func (w WhileStmt) Accept(v Visitor) interface {} {
-	v.visitWhileStmt(w)
+	v.VisitWhileStmt(w)
 	return nil
 }
 
@@ -141,7 +141,7 @@ type VarDecl struct {
 }
 
 func (d VarDecl) Accept(v Visitor) interface{} {
-	v.visitVarDecl(d)
+	v.VisitVarDecl(d)
 	return nil
 }
 
@@ -150,6 +150,6 @@ type Block struct {
 }
 
 func (b Block) Accept(v Visitor) interface{} {
-	v.visitBlock(b)
+	v.VisitBlock(b)
 	return nil
 }

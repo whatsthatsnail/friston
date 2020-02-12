@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"bufio";
-	"os";
-	"io/ioutil";
-	"friston/lexer";
-	"friston/type_generator";
-	"friston/parser";
-	"friston/ast";
+	"bufio"
+	"os"
+	"io/ioutil"
+	"friston/lexer"
+	"friston/type_generator"
+	"friston/parser"
+	"friston/visitors"
 )
 
 // Gets arguments when using 'go run *.go -- ...'
@@ -46,7 +46,7 @@ func repl() {
 
 	scanner := bufio.NewScanner(os.Stdin)
 
-	interpreter := ast.NewInterpreter(true)
+	interpreter := visitors.NewInterpreter(true)
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -92,7 +92,7 @@ func file(path string, quiet bool) {
 		stmts, parErr := par.Parse()
 
 		if !quiet && !parErr {
-			printer := ast.ASTPrinter{}
+			printer := visitors.ASTPrinter{}
 			fmt.Printf("\n")
 			for _, s := range(stmts) {
 				s.Accept(printer)
@@ -101,7 +101,7 @@ func file(path string, quiet bool) {
 		}
 
 		if !parErr {
-			interpreter := ast.NewInterpreter(false)
+			interpreter := visitors.NewInterpreter(false)
 			interpreter.Interpret(stmts)
 		}
 	}

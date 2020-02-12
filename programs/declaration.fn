@@ -1,12 +1,10 @@
-print 42
-print 25
+println(42)
+println(25)
 let a = 5
 
-{
-    print a
-}
+println(a)
 
 let b = ~
 "two liner"
 
-print b
+println(b)

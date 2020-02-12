@@ -1,27 +1,29 @@
-package ast
+package visitors
 
 import (
-	"reflect"
 	"fmt"
-	"friston/lexer"
+	"reflect"
+	"friston/ast"
+	"friston/callables"
+	"friston/environment"
 	"friston/errors"
-	env "friston/environment"
+	"friston/lexer"
 )
 
 type Interpreter struct{
 	Repl bool
-	globals env.Environment
-	environment env.Environment
+	globals environment.Environment
+	environment environment.Environment
 }
 
 func NewInterpreter(repl bool) Interpreter {
 	i := Interpreter{}
 	i.Repl = repl
 	// Define global scope envionment (parent = nil)
-	i.globals = env.NewEnvironment()
+	i.globals = environment.NewEnvironment()
 
 	// Declare all native functions in the global environment
-	for k, v := range Natives {
+	for k, v := range callables.Natives {
 		i.globals.Declare(k, v)
 	}
 	
@@ -29,7 +31,7 @@ func NewInterpreter(repl bool) Interpreter {
 	return i
 }
 
-func (i Interpreter) Interpret(stmts []Statement) {
+func (i Interpreter) Interpret(stmts []ast.Statement) {
 	for _, s := range(stmts) {
 		i.execute(s)
 	}
@@ -37,11 +39,11 @@ func (i Interpreter) Interpret(stmts []Statement) {
 
 // Helper methods:
 
-func (i Interpreter) evaluate(expr Expression) interface{} {
+func (i Interpreter) evaluate(expr ast.Expression) interface{} {
 	return expr.Accept(i)
 }
 
-func (i Interpreter) execute(stmt Statement) {
+func (i Interpreter) execute(stmt ast.Statement) {
 	stmt.Accept(i)
 }
 
@@ -53,24 +55,21 @@ func isTruth(expr interface{}) bool {
 	case bool:
 		if expr.(bool) == false {
 			return false
-		} else {
-			return true
 		}
 	case int, float64:
 		if expr.(float64) == 0 {
 			return false
-		} else {
-			return true
 		}
 	case string:
 		if len(expr.(string)) == 0 {
 			return false
-		} else {
-			return true
 		}
 	default:
 		return true
 	}
+
+	// Unreachable.
+	return true
 }
 
 // Nil is only equal to itself (our equality differs from Golang).
@@ -109,9 +108,9 @@ func checkNumberOperands(operator lexer.Token, left interface{}, right interface
 	}
 }
 
-// Node visitor methods:
+// Node Visitor methods:
 
-func (i Interpreter) visitBinary(b Binary) interface{} {
+func (i Interpreter) VisitBinary(b ast.Binary) interface{} {
 	// Evaluate each side all the way down the tree.
 	left := b.X.Accept(i)
 	right := b.Y.Accept(i)
@@ -173,7 +172,7 @@ func (i Interpreter) visitBinary(b Binary) interface{} {
 	return nil
 }
 
-func (i Interpreter) visitLogic(l Logic) interface{} {
+func (i Interpreter) VisitLogic(l ast.Logic) interface{} {
 	left := i.evaluate(l.X)
 
 	if l.Op.TType == lexer.OR {
@@ -193,7 +192,7 @@ func (i Interpreter) visitLogic(l Logic) interface{} {
 	return nil
 }
 
-func (i Interpreter) visitUnary(u Unary) interface{} {
+func (i Interpreter) VisitUnary(u ast.Unary) interface{} {
 	right := i.evaluate(u.X)
 
 	switch u.Op.TType {
@@ -209,26 +208,26 @@ func (i Interpreter) visitUnary(u Unary) interface{} {
 	return nil
 }
 
-func (i Interpreter) visitGroup(g Group) interface{} {
+func (i Interpreter) VisitGroup(g ast.Group) interface{} {
 	return i.evaluate(g.X)
 }
 
-func (i Interpreter) visitLiteral(l Literal) interface{} {
+func (i Interpreter) VisitLiteral(l ast.Literal) interface{} {
 	return l.X.Literal
 }
 
-func (i Interpreter) visitVariable(vr Variable) interface{} {
+func (i Interpreter) VisitVariable(vr ast.Variable) interface{} {
 	return i.environment.Get(vr.Name)
 }
 
-func (i Interpreter) visitAssignment(a Assignment) interface{} {
+func (i Interpreter) VisitAssignment(a ast.Assignment) interface{} {
 	value := i.evaluate(a.Value)
 
-	i.environment.Assign(a.Name.Lexeme, value)
+	i.environment.Assign(a.Name, value)
 	return value
 }
 
-func (i Interpreter) visitCall(c Call) interface{} {
+func (i Interpreter) VisitCall(c ast.Call) interface{} {
 	// Callee should probably be an IDENTIFIER, but really it can be anything, almost.
 	callee := i.evaluate(c.Callee)
 
@@ -238,7 +237,7 @@ func (i Interpreter) visitCall(c Call) interface{} {
 	}
 
 	// Cast the callee to type callable.function, and call it if it is a callable type.
-	function, ok := callee.(Function)
+	function, ok := callee.(callables.Function)
 	if !ok {
 		// TODO: Runtime errors!
 		errors.ThrowError(c.Paren.Line, "Can only call functions.")
@@ -252,9 +251,9 @@ func (i Interpreter) visitCall(c Call) interface{} {
 	return function.Call(i, arguments)
 }
 
-// Statement visitor methods:
+// Statement Visitor methods:
 
-func (i Interpreter) visitExprStmt(e ExprStmt) {
+func (i Interpreter) VisitExprStmt(e ast.ExprStmt) {
 	value := i.evaluate(e.Expr)
 
 	if i.Repl {
@@ -262,7 +261,7 @@ func (i Interpreter) visitExprStmt(e ExprStmt) {
 	}
 }
 
-func (i Interpreter) visitIfStmt(stmt IfStmt) {
+func (i Interpreter) VisitIfStmt(stmt ast.IfStmt) {
 	if isTruth(i.evaluate(stmt.Condition)) {
 		i.execute(stmt.ThenBranch)
 	} else if stmt.ElseBranch != nil {
@@ -270,13 +269,13 @@ func (i Interpreter) visitIfStmt(stmt IfStmt) {
 	}
 }
 
-func (i Interpreter) visitWhileStmt(stmt WhileStmt) {
+func (i Interpreter) VisitWhileStmt(stmt ast.WhileStmt) {
 	for isTruth(i.evaluate(stmt.Condition)) {
 		i.execute(stmt.LoopBranch)
 	}
 }
 
-func (i Interpreter) visitVarDecl(d VarDecl) {
+func (i Interpreter) VisitVarDecl(d ast.VarDecl) {
 	var value interface{}
 	if d.Initializer != nil {
 		value = i.evaluate(d.Initializer)
@@ -285,10 +284,10 @@ func (i Interpreter) visitVarDecl(d VarDecl) {
 	i.environment.Declare(d.Name.Lexeme, value)
 }
 
-func (i Interpreter) visitBlock(b Block) {
+func (i Interpreter) VisitBlock(b ast.Block) {
 	// Create a new environment, enclosed by the current scope.
 	enclosing := i.environment
-	enclosed := env.NewEnvironment()
+	enclosed := environment.NewEnvironment()
 	enclosed.AddParent(enclosing)
 	
 	// Set the current environment to the inner scope. 

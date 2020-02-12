@@ -1,4 +1,4 @@
-package ast
+package callables
 
 import (
 	"fmt"
@@ -16,7 +16,7 @@ type clockFunc struct{}
 
 func (c clockFunc) Arity() int { return 0 }
 
-func (c clockFunc) Call(i Interpreter, args []interface{}) interface{} {
+func (c clockFunc) Call(interpreter interface{}, args []interface{}) interface{} {
 	now := time.Now()
 	return float64(now.UnixNano()) / 1000000
 }
@@ -25,7 +25,7 @@ type printFunc struct{}
 
 func (p printFunc) Arity() int { return 1 }
 
-func (p printFunc) Call(i Interpreter, args []interface{}) interface{} {
+func (p printFunc) Call(interpreter interface{}, args []interface{}) interface{} {
 	fmt.Print(args[0])
 	return nil
 }
@@ -34,7 +34,7 @@ type printlnFunc struct{}
 
 func (p printlnFunc) Arity() int { return 1 }
 
-func (p printlnFunc) Call(i Interpreter, args []interface{}) interface{} {
+func (p printlnFunc) Call(interpreter interface{}, args []interface{}) interface{} {
 	fmt.Println(args[0])
 	return nil
 }
