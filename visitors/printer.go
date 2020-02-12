@@ -91,6 +91,15 @@ func (printer ASTPrinter) VisitWhileStmt(stmt ast.WhileStmt) {
 	stmt.LoopBranch.Accept(printer)
 }
 
+func (printer ASTPrinter) VisitFuncDecl(f ast.FuncDecl) {
+	fmt.Printf("function %s : ", f.Name.Lexeme)
+	for _, arg := range(f.ArgumentNames) {
+		fmt.Printf(" %s ", arg)
+	}
+	fmt.Printf(" =\n")
+	f.StmtBlock.Accept(printer)
+}
+
 func (printer ASTPrinter) VisitVarDecl(d ast.VarDecl) {
 	fmt.Printf("let %s = ", d.Name.Lexeme)
 	d.Initializer.Accept(printer)

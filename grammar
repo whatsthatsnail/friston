@@ -7,8 +7,11 @@ Syntax:
 
 program         -> declaration* EOF ;
 
-declaration     -> varDecl
+declaration     -> funcDecl
+                |  varDecl
                 |  statement ;
+
+funcDecl        -> "function" IDENTIFIER ":" arguments? "=" block;
 
 varDecl         -> "let" IDENTIFIER ( "=" expression )? NEWLINE 
                 |  "let" IDENTIFIER ( "=" expression )? ";" ;
@@ -26,6 +29,7 @@ whileStmt       -> "while" expression "then" statement ;
 forStmt         -> "for" declaration expression ";" statement "then" statement ;
 printStmt       -> "print" expression NEWLINE ;
 
+arguments       ->  expression ( "," expression)* ;
 expression      -> assignment ;
 assignment      -> IDENTIFIER "=" assignment
                 |  logic_or :

@@ -1,10 +1,9 @@
-package visitors
+package interpreter
 
 import (
 	"fmt"
 	"reflect"
 	"friston/ast"
-	"friston/callables"
 	"friston/environment"
 	"friston/errors"
 	"friston/lexer"
@@ -23,7 +22,7 @@ func NewInterpreter(repl bool) Interpreter {
 	i.globals = environment.NewEnvironment()
 
 	// Declare all native functions in the global environment
-	for k, v := range callables.Natives {
+	for k, v := range Natives {
 		i.globals.Declare(k, v)
 	}
 	
@@ -237,7 +236,7 @@ func (i Interpreter) VisitCall(c ast.Call) interface{} {
 	}
 
 	// Cast the callee to type callable.function, and call it if it is a callable type.
-	function, ok := callee.(callables.Function)
+	function, ok := callee.(Function)
 	if !ok {
 		// TODO: Runtime errors!
 		errors.ThrowError(c.Paren.Line, "Can only call functions.")
@@ -273,6 +272,20 @@ func (i Interpreter) VisitWhileStmt(stmt ast.WhileStmt) {
 	for isTruth(i.evaluate(stmt.Condition)) {
 		i.execute(stmt.LoopBranch)
 	}
+}
+
+func (i Interpreter) VisitFuncDecl(f ast.FuncDecl) {
+	var arguments []string
+	for _, arg := range(f.ArgumentNames) {
+		if arg.TType == lexer.IDENTIFIER {
+			arguments = append(arguments, arg.Lexeme)
+		} else {
+			errors.ThrowError(arg.Line, "Argument names must be identifiers.")
+		}
+	}
+
+	function := UserFunc{len(arguments), arguments, f.StmtBlock}
+	i.environment.Declare(f.Name.Lexeme, function)
 }
 
 func (i Interpreter) VisitVarDecl(d ast.VarDecl) {

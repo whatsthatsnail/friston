@@ -2,7 +2,7 @@ package ast
 
 import "friston/lexer"
 
-// Visitor interface (all other Visitors must implement this)
+// Visitor interface
 type Visitor interface {
 	VisitBinary(b Binary) interface{}
 	VisitLogic(l Logic) interface{}
@@ -16,6 +16,7 @@ type Visitor interface {
 	VisitExprStmt(e ExprStmt)
 	VisitIfStmt(stmt IfStmt)
 	VisitWhileStmt(stmt WhileStmt)
+	VisitFuncDecl(f FuncDecl)
 	VisitVarDecl(d VarDecl)
 	VisitBlock(b Block)
 }
@@ -130,8 +131,19 @@ type WhileStmt struct {
 	LoopBranch Statement
 }
 
-func (w WhileStmt) Accept(v Visitor) interface {} {
+func (w WhileStmt) Accept(v Visitor) interface{} {
 	v.VisitWhileStmt(w)
+	return nil
+}
+
+type FuncDecl struct {
+	Name lexer.Token
+	ArgumentNames []lexer.Token
+	StmtBlock Statement
+}
+
+func (f FuncDecl) Accept(v Visitor) interface{} {
+	v.VisitFuncDecl(f)
 	return nil
 }
 

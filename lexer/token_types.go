@@ -41,11 +41,10 @@ const (
 	ELSE
 	FALSE
 	FOR
-	FUNC
+	FUNCTION
 	IF
 	NIL
 	OR
-	PRINT
 	THEN
 	THIS
 	TRUE
@@ -64,7 +63,7 @@ var keywords = map[string]TokenType{
 	"else" : ELSE,
 	"false" : FALSE,
 	"for" : FOR,
-	"func" : FUNC,
+	"function" : FUNCTION,
 	"if" : IF,
 	"nil" : NIL,
 	"or" : OR,
@@ -140,7 +139,7 @@ func (t TokenType) typeString() string {
 	case 29:
 		return "FOR"
 	case 30:
-		return "FUNC"
+		return "FUNCTION"
 	case 31:
 		return "IF"
 	case 32:

@@ -262,9 +262,34 @@ func (p *parser) primary() ast.Expression {
 func (p *parser) declaration() ast.Statement {
 	if p.match([]lexer.TokenType{lexer.LET}) {
 		return p.varDecl()
+	} else if p.match([]lexer.TokenType{lexer.FUNCTION}) {
+		return p.funcDecl()
 	} else {
-		return p.statement()
+		return p.varDecl()
 	}
+}
+
+func (p *parser) funcDecl() ast.Statement {
+	var name lexer.Token
+	p.consume(lexer.IDENTIFIER, "Expect function name.")
+	name = p.previous()
+
+	p.consume(lexer.COLON, "Expect ':' in function declaration.")
+
+	var arguments []lexer.Token
+	for !p.check(lexer.EQUAL) {
+		arg := p.advance()
+		arguments = append(arguments, arg)
+		if p.peek().TType != lexer.EQUAL {
+			p.consume(lexer.COMMA, "Arguments must be separated by ','.")
+		}
+	}
+
+	p.consume(lexer.EQUAL, "Arguments must end with '='.")
+
+	block := p.block()
+
+	return ast.FuncDecl{name, arguments, block}
 }
 
 func (p *parser) varDecl() ast.Statement {
@@ -292,6 +317,9 @@ func (p *parser) statement() ast.Statement {
 	case lexer.FOR:
 		p.advance()
 		return p.forStmt()
+	case lexer.FUNCTION:
+		p.advance()
+		return p.funcDecl()
 	case lexer.LET:
 		p.advance()
 		return p.varDecl()

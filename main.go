@@ -9,6 +9,7 @@ import (
 	"friston/type_generator"
 	"friston/parser"
 	"friston/visitors"
+	"friston/interpreter"
 )
 
 // Gets arguments when using 'go run *.go -- ...'
@@ -46,7 +47,7 @@ func repl() {
 
 	scanner := bufio.NewScanner(os.Stdin)
 
-	interpreter := visitors.NewInterpreter(true)
+	inter := interpreter.NewInterpreter(true)
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -63,7 +64,7 @@ func repl() {
 			stmts, parErr := par.Parse()
 
 			if !parErr {
-				interpreter.Interpret(stmts)
+				inter.Interpret(stmts)
 				fmt.Printf(">>> ")
 			}
 		}
@@ -101,8 +102,8 @@ func file(path string, quiet bool) {
 		}
 
 		if !parErr {
-			interpreter := visitors.NewInterpreter(false)
-			interpreter.Interpret(stmts)
+			inter := interpreter.NewInterpreter(false)
+			inter.Interpret(stmts)
 		}
 	}
 }

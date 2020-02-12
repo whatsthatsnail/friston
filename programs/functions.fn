@@ -1,4 +1,6 @@
 println(clock())
-println("this is a print function")
-print(6 * 7)
-println(" <-- That was an expression")
+
+function square : x =
+    println(x*x)
+
+square(2)
