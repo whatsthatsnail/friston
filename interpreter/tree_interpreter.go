@@ -244,7 +244,7 @@ func (i Interpreter) VisitCall(c ast.Call) interface{} {
 	
 	// Check function arity. (Number of arguments)
 	if len(arguments) != function.Arity() {
-		errors.ThrowError(c.Paren.Line, "Expected " + string(function.Arity()) + " but got " + string(len(arguments)) + " arguments.")
+		errors.ThrowError(c.Paren.Line, fmt.Sprintf("Expected %v, but got %v arguments.", function.Arity(), len(arguments)))
 	}
 
 	return function.Call(i, arguments)
@@ -307,6 +307,6 @@ func (i Interpreter) VisitBlock(b ast.Block) {
 	i.environment = enclosed
 
 	for _, s := range(b.Stmts) {
-		i.execute(s)
+			i.execute(s)
 	}
 }

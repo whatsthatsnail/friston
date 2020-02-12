@@ -1,6 +1,8 @@
 package interpreter
 
-import "friston/ast"
+import (
+	"friston/ast"
+)
 
 type Function interface {
 	Call(i Interpreter, args []interface{}) interface{}
@@ -18,8 +20,7 @@ func (u UserFunc) Call(i Interpreter, args []interface{}) interface{} {
 		i.environment.Declare(u.ArgumentNames[n], arg)
 	}  
 
-	i.execute(u.StmtBlock)
-	return nil
+	return i.evaluate(u.StmtBlock)
 }
 
 func (u UserFunc) Arity() int { return u.Args }

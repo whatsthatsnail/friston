@@ -11,13 +11,15 @@ declaration     -> funcDecl
                 |  varDecl
                 |  statement ;
 
-funcDecl        -> "function" IDENTIFIER ":" arguments? "=" block;
+funcDecl        -> "function" IDENTIFIER ":" arguments? "=" statement;
 
 varDecl         -> "let" IDENTIFIER ( "=" expression )? NEWLINE 
                 |  "let" IDENTIFIER ( "=" expression )? ";" ;
 
 statement       -> exprStmt
                 |  ifStmt
+                |  whileStmt
+                |  forStmt
                 |  block ;
 
 block           -> INDENT declaration* DEDENT ;

@@ -232,7 +232,7 @@ func (l *lexer) getNewline() {
 	previousToken := l.tokens[len(l.tokens) - 1]
 	
 	// Only append NEWLINE if the previous character is not a newline or 'then' keyword
-	if previousToken.TType != NEWLINE && previousToken.TType != SEMICOLON && previousToken.TType != THEN {
+	if previousToken.TType != NEWLINE && previousToken.TType != SEMICOLON && previousToken.TType != THEN && previousToken.TType != EQUAL{
 		l.tokens = append(l.tokens, Token{NEWLINE, "", nil, l.line})
 	}
 }

@@ -287,9 +287,9 @@ func (p *parser) funcDecl() ast.Statement {
 
 	p.consume(lexer.EQUAL, "Arguments must end with '='.")
 
-	block := p.block()
+	statement := p.statement()
 
-	return ast.FuncDecl{name, arguments, block}
+	return ast.FuncDecl{name, arguments, statement}
 }
 
 func (p *parser) varDecl() ast.Statement {

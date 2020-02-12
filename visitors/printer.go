@@ -94,7 +94,7 @@ func (printer ASTPrinter) VisitWhileStmt(stmt ast.WhileStmt) {
 func (printer ASTPrinter) VisitFuncDecl(f ast.FuncDecl) {
 	fmt.Printf("function %s : ", f.Name.Lexeme)
 	for _, arg := range(f.ArgumentNames) {
-		fmt.Printf(" %s ", arg)
+		fmt.Printf(" %s ", arg.Lexeme)
 	}
 	fmt.Printf(" =\n")
 	f.StmtBlock.Accept(printer)

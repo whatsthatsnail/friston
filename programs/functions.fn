@@ -1,6 +1,9 @@
-println(clock())
-
 function square : x =
-    println(x*x)
+    println(x * x)
 
 square(2)
+
+function polynomial : x, y, z =
+    println(x * y * z)
+
+polynomial(10, 2, 6)
