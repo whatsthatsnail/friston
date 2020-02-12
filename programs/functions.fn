@@ -1,9 +1,8 @@
-function square : x =
-    println(x * x)
+function ifTrue: a =
+    if a > 5 then
+        return "true"
+    else then
+        return "false"
 
-square(2)
-
-function polynomial : x, y, z =
-    println(x * y * z)
-
-polynomial(10, 2, 6)
+println(ifTrue(1))
+println(ifTrue(10))

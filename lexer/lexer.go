@@ -232,8 +232,12 @@ func (l *lexer) getNewline() {
 	previousToken := l.tokens[len(l.tokens) - 1]
 	
 	// Only append NEWLINE if the previous character is not a newline or 'then' keyword
-	if previousToken.TType != NEWLINE && previousToken.TType != SEMICOLON && previousToken.TType != THEN && previousToken.TType != EQUAL{
+	if previousToken.TType != NEWLINE && previousToken.TType != SEMICOLON && previousToken.TType != THEN && previousToken.TType != EQUAL && previousToken.TType != DEDENT{
 		l.tokens = append(l.tokens, Token{NEWLINE, "", nil, l.line})
+	}
+
+	if !l.isAtEnd() {
+		l.getDent()
 	}
 }
 
@@ -297,9 +301,6 @@ func (l *lexer) scanToken() {
 	case '\n':
 		l.getNewline()
 		l.line++
-		if l.peek() != '\n' {
-			l.getDent()
-		}
 	case '~':
 		// Skip a newline if it's preceded by a '~' to allow a statement to continue to a new line of text.
 		if l.peek() == '\n' {

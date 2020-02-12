@@ -17,6 +17,12 @@ func NewEnvironment() Environment {
 	return env
 }
 
+func NewEnclosed(parent Environment) Environment {
+	enclosed := NewEnvironment()
+	enclosed.AddParent(parent)
+	return enclosed
+}
+
 func (e *Environment) AddParent(parentEnv Environment) {
 	e.parent = &parentEnv
 }

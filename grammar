@@ -11,7 +11,9 @@ declaration     -> funcDecl
                 |  varDecl
                 |  statement ;
 
-funcDecl        -> "function" IDENTIFIER ":" arguments? "=" statement;
+funcDecl        -> "function" IDENTIFIER ":" parameters? "=" statement;
+
+parameters       ->  IDENTIFIER ( "," IDENTIFIER)* ;
 
 varDecl         -> "let" IDENTIFIER ( "=" expression )? NEWLINE 
                 |  "let" IDENTIFIER ( "=" expression )? ";" ;
@@ -20,6 +22,7 @@ statement       -> exprStmt
                 |  ifStmt
                 |  whileStmt
                 |  forStmt
+                |  returnStmt
                 |  block ;
 
 block           -> INDENT declaration* DEDENT ;
@@ -29,7 +32,7 @@ exprStmt        -> expression NEWLINE
 ifStmt          -> "if" expression "then" statement ( "else" "then" statement )? ;
 whileStmt       -> "while" expression "then" statement ;
 forStmt         -> "for" declaration expression ";" statement "then" statement ;
-printStmt       -> "print" expression NEWLINE ;
+returnStmt      -> "return" expression? NEWLINE ;
 
 arguments       ->  expression ( "," expression)* ;
 expression      -> assignment ;

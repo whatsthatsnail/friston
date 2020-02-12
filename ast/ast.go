@@ -13,12 +13,13 @@ type Visitor interface {
 	VisitAssignment(a Assignment) interface{}
 	VisitCall(c Call) interface{}
 
-	VisitExprStmt(e ExprStmt)
-	VisitIfStmt(stmt IfStmt)
-	VisitWhileStmt(stmt WhileStmt)
-	VisitFuncDecl(f FuncDecl)
-	VisitVarDecl(d VarDecl)
-	VisitBlock(b Block)
+	VisitExprStmt(e ExprStmt) interface{}
+	VisitIfStmt(stmt IfStmt) interface{}
+	VisitWhileStmt(stmt WhileStmt) interface{}
+	VisitFuncDecl(f FuncDecl) interface{}
+	VisitVarDecl(d VarDecl) interface{}
+	VisitReturn(d ReturnStmt) interface{}
+	VisitBlock(b Block) interface{}
 }
 
 // Node types:
@@ -138,8 +139,8 @@ func (w WhileStmt) Accept(v Visitor) interface{} {
 
 type FuncDecl struct {
 	Name lexer.Token
-	ArgumentNames []lexer.Token
-	StmtBlock Statement
+	Parameters []lexer.Token
+	Block Block
 }
 
 func (f FuncDecl) Accept(v Visitor) interface{} {
@@ -154,6 +155,16 @@ type VarDecl struct {
 
 func (d VarDecl) Accept(v Visitor) interface{} {
 	v.VisitVarDecl(d)
+	return nil
+}
+
+type ReturnStmt struct {
+	Keyword lexer.Token
+	Value Expression
+}
+
+func (r ReturnStmt) Accept(v Visitor) interface{} {
+	v.VisitReturn(r)
 	return nil
 }
 

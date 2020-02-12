@@ -65,12 +65,13 @@ func (printer ASTPrinter) VisitCall(c ast.Call) interface{} {
 	return nil
 }
 
-func (printer ASTPrinter) VisitExprStmt(e ast.ExprStmt) {
+func (printer ASTPrinter) VisitExprStmt(e ast.ExprStmt) interface{} {
 	e.Expr.Accept(printer)
 	fmt.Printf(";\n")
+	return nil
 }
 
-func (printer ASTPrinter) VisitIfStmt(stmt ast.IfStmt) {
+func (printer ASTPrinter) VisitIfStmt(stmt ast.IfStmt) interface{} {
 	fmt.Printf("if (")
 	stmt.Condition.Accept(printer)
 	fmt.Printf(") ")
@@ -82,34 +83,46 @@ func (printer ASTPrinter) VisitIfStmt(stmt ast.IfStmt) {
 		fmt.Printf("else ")
 		stmt.ElseBranch.Accept(printer)
 	}
+	return nil
 }
 
-func (printer ASTPrinter) VisitWhileStmt(stmt ast.WhileStmt) {
+func (printer ASTPrinter) VisitWhileStmt(stmt ast.WhileStmt) interface{} {
 	fmt.Printf("while (")
 	stmt.Condition.Accept(printer)
 	fmt.Printf(") ")
 	stmt.LoopBranch.Accept(printer)
+	return nil
 }
 
-func (printer ASTPrinter) VisitFuncDecl(f ast.FuncDecl) {
+func (printer ASTPrinter) VisitFuncDecl(f ast.FuncDecl) interface{} {
 	fmt.Printf("function %s : ", f.Name.Lexeme)
-	for _, arg := range(f.ArgumentNames) {
-		fmt.Printf(" %s ", arg.Lexeme)
+	for _, param := range(f.Parameters) {
+		fmt.Printf(" %s ", param.Lexeme)
 	}
 	fmt.Printf(" =\n")
-	f.StmtBlock.Accept(printer)
+	f.Block.Accept(printer)
+	return nil
 }
 
-func (printer ASTPrinter) VisitVarDecl(d ast.VarDecl) {
+func (printer ASTPrinter) VisitVarDecl(d ast.VarDecl) interface{} {
 	fmt.Printf("let %s = ", d.Name.Lexeme)
 	d.Initializer.Accept(printer)
 	fmt.Printf(";\n")
+	return nil
 }
 
-func (printer ASTPrinter) VisitBlock(b ast.Block) {
+func (printer ASTPrinter) VisitReturn(r ast.ReturnStmt) interface{} {
+	fmt.Println("return ")
+	r.Value.Accept(printer)
+
+	return nil
+}
+
+func (printer ASTPrinter) VisitBlock(b ast.Block) interface{} {
 	fmt.Printf("{\n")
 	for _, s := range(b.Stmts) {
 		s.Accept(printer)
 	}
 	fmt.Printf("}\n")
+	return nil
 }

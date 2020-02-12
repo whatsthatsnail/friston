@@ -42,8 +42,34 @@ func (i Interpreter) evaluate(expr ast.Expression) interface{} {
 	return expr.Accept(i)
 }
 
-func (i Interpreter) execute(stmt ast.Statement) {
-	stmt.Accept(i)
+func (i Interpreter) execute(stmt ast.Statement) interface{} {
+	block, ok := stmt.(ast.Block)
+	if ok {
+		return i.executeBlock(block)
+	}
+
+	return stmt.Accept(i)
+}
+
+func (i Interpreter) executeBlock(block ast.Block) interface{} {
+
+
+	for _, stmt := range block.Stmts {
+		returnStmt, ok := stmt.(ast.ReturnStmt)
+		if ok {
+			value := i.evaluate(returnStmt.Value)
+			fmt.Printf("executeBlock returning: %v\n", value)
+			return value
+		} else {
+			value := i.execute(stmt)
+			if value != nil {
+				return value
+			}
+		}
+	}
+
+	fmt.Println("RETURNING NIL")
+	return nil
 }
 
 // Nil, false bools, zero, empty strings are false, all else is true.
@@ -231,7 +257,7 @@ func (i Interpreter) VisitCall(c ast.Call) interface{} {
 	callee := i.evaluate(c.Callee)
 
 	var arguments []interface{}
-	for _, arg := range(c.Arguments) {
+	for _, arg := range c.Arguments  {
 		arguments = append(arguments, i.evaluate(arg))
 	}
 
@@ -241,72 +267,78 @@ func (i Interpreter) VisitCall(c ast.Call) interface{} {
 		// TODO: Runtime errors!
 		errors.ThrowError(c.Paren.Line, "Can only call functions.")
 	}
-	
+
 	// Check function arity. (Number of arguments)
 	if len(arguments) != function.Arity() {
 		errors.ThrowError(c.Paren.Line, fmt.Sprintf("Expected %v, but got %v arguments.", function.Arity(), len(arguments)))
+	} else {
+		value := function.Call(i, arguments)
+		fmt.Printf("VisitCall returning: %v\n", value)
+		return value
 	}
 
-	return function.Call(i, arguments)
+	return nil
 }
 
 // Statement Visitor methods:
 
-func (i Interpreter) VisitExprStmt(e ast.ExprStmt) {
+func (i Interpreter) VisitExprStmt(e ast.ExprStmt) interface{} {
 	value := i.evaluate(e.Expr)
 
 	if i.Repl {
 		fmt.Printf("%v\n", value)
 	}
+	return nil
 }
 
-func (i Interpreter) VisitIfStmt(stmt ast.IfStmt) {
+func (i Interpreter) VisitIfStmt(stmt ast.IfStmt) interface{} {
 	if isTruth(i.evaluate(stmt.Condition)) {
-		i.execute(stmt.ThenBranch)
+		return i.execute(stmt.ThenBranch)
 	} else if stmt.ElseBranch != nil {
-		i.execute(stmt.ElseBranch)
+		return i.execute(stmt.ElseBranch)
 	}
+	return nil
 }
 
-func (i Interpreter) VisitWhileStmt(stmt ast.WhileStmt) {
+func (i Interpreter) VisitWhileStmt(stmt ast.WhileStmt) interface{} {
 	for isTruth(i.evaluate(stmt.Condition)) {
 		i.execute(stmt.LoopBranch)
 	}
+	return nil
 }
 
-func (i Interpreter) VisitFuncDecl(f ast.FuncDecl) {
-	var arguments []string
-	for _, arg := range(f.ArgumentNames) {
-		if arg.TType == lexer.IDENTIFIER {
-			arguments = append(arguments, arg.Lexeme)
+func (i Interpreter) VisitFuncDecl(f ast.FuncDecl) interface{} {
+	var parameters []string
+	for _, param := range(f.Parameters) {
+		if param.TType == lexer.IDENTIFIER {
+			parameters = append(parameters, param.Lexeme)
 		} else {
-			errors.ThrowError(arg.Line, "Argument names must be identifiers.")
+			errors.ThrowError(param.Line, "Parameters must be identifiers.")
 		}
 	}
 
-	function := UserFunc{len(arguments), arguments, f.StmtBlock}
+	function := UserFunc{f.Name,parameters, f.Block}
 	i.environment.Declare(f.Name.Lexeme, function)
+	return nil
 }
 
-func (i Interpreter) VisitVarDecl(d ast.VarDecl) {
+func (i Interpreter) VisitVarDecl(d ast.VarDecl) interface{} {
 	var value interface{}
 	if d.Initializer != nil {
 		value = i.evaluate(d.Initializer)
 	}
 
 	i.environment.Declare(d.Name.Lexeme, value)
+	return nil
 }
 
-func (i Interpreter) VisitBlock(b ast.Block) {
-	// Create a new environment, enclosed by the current scope.
-	enclosing := i.environment
-	enclosed := environment.NewEnvironment()
-	enclosed.AddParent(enclosing)
-	
-	// Set the current environment to the inner scope. 
-	i.environment = enclosed
+func (i Interpreter) VisitReturn(r ast.ReturnStmt) interface{} {
+	return i.evaluate(r.Value)
+}
 
-	for _, s := range(b.Stmts) {
-			i.execute(s)
-	}
+func (i Interpreter) VisitBlock(b ast.Block) interface{} {
+	// Create a new environment, enclosed by the current scope, and set the current environment to it.
+	i.environment = environment.NewEnclosed(i.environment)
+
+	return i.executeBlock(b)
 }

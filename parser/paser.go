@@ -276,20 +276,21 @@ func (p *parser) funcDecl() ast.Statement {
 
 	p.consume(lexer.COLON, "Expect ':' in function declaration.")
 
-	var arguments []lexer.Token
+	var parameters []lexer.Token
 	for !p.check(lexer.EQUAL) {
-		arg := p.advance()
-		arguments = append(arguments, arg)
+		param := p.advance()
+		parameters = append(parameters, param)
 		if p.peek().TType != lexer.EQUAL {
-			p.consume(lexer.COMMA, "Arguments must be separated by ','.")
+			p.consume(lexer.COMMA, "Parameters must be separated by ','.")
 		}
 	}
 
 	p.consume(lexer.EQUAL, "Arguments must end with '='.")
+	p.consume(lexer.INDENT, "Function blocks must begin with an indent.")
 
-	statement := p.statement()
+	block := p.block()
 
-	return ast.FuncDecl{name, arguments, statement}
+	return ast.FuncDecl{name, parameters, block}
 }
 
 func (p *parser) varDecl() ast.Statement {
@@ -326,6 +327,9 @@ func (p *parser) statement() ast.Statement {
 	case lexer.INDENT:
 		p.advance()
 		return p.block()
+	case lexer.RETURN:
+		p.advance()
+		return p.returnStmt()
 	}
 
 	return p.exprStmt()
@@ -384,7 +388,20 @@ func (p *parser) forStmt() ast.Statement {
 	return ast.Block{forLoop}
 }
 
-func (p *parser) block() ast.Statement {
+func (p *parser) returnStmt() ast.Statement {
+	keyword := p.previous()
+	var expr ast.Expression = nil
+
+	if !p.check(lexer.NEWLINE) {
+		expr = p.expression()
+	}
+
+	p.consume(lexer.NEWLINE, "Return statement must end in a new line.")
+
+	return ast.ReturnStmt{keyword, expr}
+}
+
+func (p *parser) block() ast.Block {
 	var stmts []ast.Statement
 	for !p.check(lexer.DEDENT) && !p.isAtEnd() {
 		stmts = append(stmts, p.statement())

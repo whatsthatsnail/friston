@@ -49,6 +49,7 @@ const (
 	THIS
 	TRUE
 	LET
+	RETURN
 	WHILE
 
 	INDENT
@@ -71,6 +72,7 @@ var keywords = map[string]TokenType{
 	"this" : THIS,
 	"true" : TRUE,
 	"let" : LET,
+	"return" : RETURN,
 	"while" : WHILE,
 }
 
@@ -155,14 +157,16 @@ func (t TokenType) typeString() string {
 	case 37:
 		return "LET"
 	case 38:
-		return "WHILE"
+		return "RETURN"
 	case 39:
-		return "INDENT"
+		return "WHILE"
 	case 40:
-		return "DEDENT"
+		return "INDENT"
 	case 41:
-		return "NEWLINE"
+		return "DEDENT"
 	case 42:
+		return "NEWLINE"
+	case 43:
 		return "EOF"
 	}
 
