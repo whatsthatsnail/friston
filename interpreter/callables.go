@@ -1,7 +1,6 @@
 package interpreter
 
 import (
-	"fmt"
 	"friston/ast"
 	"friston/environment"
 	"friston/lexer"
@@ -27,7 +26,6 @@ func (u UserFunc) Call(i Interpreter, args []interface{}) interface{} {
 	}
 
 	value := i.executeBlock(u.Block)
-	fmt.Printf("Call returning: %v\n", value)
 	return value
 }
 

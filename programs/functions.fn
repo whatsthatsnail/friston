@@ -1,8 +1,15 @@
-function ifTrue: a =
-    if a > 5 then
-        return "true"
+// fib(n) returns the nth number in the fibonacci sequence.
+function fib: n =
+    if n <= 1 then return 1
     else then
-        return "false"
+        return fib(n - 1) + fib(n - 2)
 
-println(ifTrue(1))
-println(ifTrue(10))
+function printFibN: n =
+    for let i = 0; i < n; i++ then
+        if i != n - 1 then
+            print(fib(i))
+            print(", ")
+        else then
+            println(fib(i))
+
+printFibN(10)

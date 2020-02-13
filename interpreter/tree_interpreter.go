@@ -52,24 +52,25 @@ func (i Interpreter) execute(stmt ast.Statement) interface{} {
 }
 
 func (i Interpreter) executeBlock(block ast.Block) interface{} {
-
+	var value interface{} = nil
 
 	for _, stmt := range block.Stmts {
+		// Check if the current statement is a return, if so, return it's value
 		returnStmt, ok := stmt.(ast.ReturnStmt)
 		if ok {
-			value := i.evaluate(returnStmt.Value)
-			fmt.Printf("executeBlock returning: %v\n", value)
-			return value
-		} else {
-			value := i.execute(stmt)
-			if value != nil {
-				return value
-			}
+			return i.evaluate(returnStmt.Value)
 		}
+		
+		// If a block statement is found, it will return it's own return statement value, or nil
+		blockStmt, ok := stmt.(ast.Block)		
+		if ok {
+			return i.executeBlock(blockStmt)
+		}
+
+		value = i.execute(stmt)
 	}
 
-	fmt.Println("RETURNING NIL")
-	return nil
+	return value
 }
 
 // Nil, false bools, zero, empty strings are false, all else is true.
@@ -273,7 +274,6 @@ func (i Interpreter) VisitCall(c ast.Call) interface{} {
 		errors.ThrowError(c.Paren.Line, fmt.Sprintf("Expected %v, but got %v arguments.", function.Arity(), len(arguments)))
 	} else {
 		value := function.Call(i, arguments)
-		fmt.Printf("VisitCall returning: %v\n", value)
 		return value
 	}
 

@@ -112,8 +112,7 @@ type ExprStmt struct {
 }
 
 func (e ExprStmt) Accept(v Visitor) interface{} {
-	v.VisitExprStmt(e)
-	return nil
+	return v.VisitExprStmt(e)
 }
 
 type IfStmt struct {
@@ -123,8 +122,7 @@ type IfStmt struct {
 }
 
 func (i IfStmt) Accept(v Visitor) interface{} {
-	v.VisitIfStmt(i)
-	return nil
+	return v.VisitIfStmt(i)
 }
 
 type WhileStmt struct {
@@ -133,8 +131,7 @@ type WhileStmt struct {
 }
 
 func (w WhileStmt) Accept(v Visitor) interface{} {
-	v.VisitWhileStmt(w)
-	return nil
+	return v.VisitWhileStmt(w)
 }
 
 type FuncDecl struct {
@@ -144,8 +141,7 @@ type FuncDecl struct {
 }
 
 func (f FuncDecl) Accept(v Visitor) interface{} {
-	v.VisitFuncDecl(f)
-	return nil
+	return v.VisitFuncDecl(f)
 }
 
 type VarDecl struct {
@@ -154,8 +150,7 @@ type VarDecl struct {
 }
 
 func (d VarDecl) Accept(v Visitor) interface{} {
-	v.VisitVarDecl(d)
-	return nil
+	return v.VisitVarDecl(d)
 }
 
 type ReturnStmt struct {
@@ -164,8 +159,7 @@ type ReturnStmt struct {
 }
 
 func (r ReturnStmt) Accept(v Visitor) interface{} {
-	v.VisitReturn(r)
-	return nil
+	return v.VisitReturn(r)
 }
 
 type Block struct {
@@ -173,6 +167,5 @@ type Block struct {
 }
 
 func (b Block) Accept(v Visitor) interface{} {
-	v.VisitBlock(b)
-	return nil
+	return v.VisitBlock(b)
 }

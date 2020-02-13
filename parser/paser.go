@@ -382,8 +382,15 @@ func (p *parser) forStmt() ast.Statement {
 
 	loopBranch := p.statement()
 
-	block := ast.Block{[]ast.Statement{loopBranch, increment}}
-	forLoop := []ast.Statement{declaration, ast.WhileStmt{condition, block}}
+	// Add the increment to the end of the loopBranch (and make it into a block if it's not already)
+	loopBlock, ok := loopBranch.(ast.Block)
+	if ok {
+		loopBlock = ast.Block{append(loopBlock.Stmts, increment)}
+	} else if !ok {
+		loopBlock = ast.Block{[]ast.Statement{loopBlock, increment}}
+	}
+
+	forLoop := []ast.Statement{declaration, ast.WhileStmt{condition, loopBlock}}
 
 	return ast.Block{forLoop}
 }

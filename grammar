@@ -34,7 +34,7 @@ whileStmt       -> "while" expression "then" statement ;
 forStmt         -> "for" declaration expression ";" statement "then" statement ;
 returnStmt      -> "return" expression? NEWLINE ;
 
-arguments       ->  expression ( "," expression)* ;
+arguments       -> expression ( "," expression)* ;
 expression      -> assignment ;
 assignment      -> IDENTIFIER "=" assignment
                 |  logic_or :
