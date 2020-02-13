@@ -1,9 +1,12 @@
+let firsttime = clock()
+
 // fib(n) returns the nth number in the fibonacci sequence.
 function fib: n =
     if n <= 1 then return 1
     else then
         return fib(n - 1) + fib(n - 2)
 
+// printFibN(n) prints n numbers of the fibonacci sequence.
 function printFibN: n =
     for let i = 0; i < n; i++ then
         if i != n - 1 then
@@ -12,4 +15,10 @@ function printFibN: n =
         else then
             println(fib(i))
 
-printFibN(10)
+printFibN(30)
+
+let secondtime = clock()
+
+print("Caclulation time: ")
+print(secondtime-firsttime)
+println(" seconds.")

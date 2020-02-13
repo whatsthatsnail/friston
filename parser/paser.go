@@ -230,7 +230,6 @@ func (p *parser) call() ast.Expression {
 				p.consume(lexer.COMMA, "Arguments must be separated by ','.")
 			}
 		}
-
 		p.consume(lexer.RIGHT_PAREN, "Arguments must end with ')'.")
 		return ast.Call{expr, paren, arguments}
 	}

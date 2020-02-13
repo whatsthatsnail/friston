@@ -18,7 +18,7 @@ func (c clockNative) Arity() int { return 0 }
 
 func (c clockNative) Call(i Interpreter, args []interface{}) interface{} {
 	now := time.Now()
-	return float64(now.UnixNano()) / 1000000
+	return float64(now.UnixNano()) / 1000000000
 }
 
 type printNative struct{}
