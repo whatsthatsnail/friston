@@ -211,23 +211,20 @@ func (l *lexer) countIndent() int {
 func (l *lexer) getDent() {
 	count := l.countIndent()
 
-	// Disregard whitespace before indented comments.
-	possibleComment := string(l.source[l.current : l.current+2])
-	if possibleComment != "//" && l.peek() != '\n' {
-		difference := count - l.depth
+	difference := count - l.depth
 
-		if difference > 0 {
-			for i := 0; i < difference; i++ {
-				l.tokens = append(l.tokens, Token{INDENT, "", nil, l.line})
-			}
-		} else if difference < 0 {
-			for i := 0; i < -difference; i++ {
-				l.tokens = append(l.tokens, Token{DEDENT, "", nil, l.line})
-			}
+	if difference > 0 {
+		for i := 0; i < difference; i++ {
+			l.tokens = append(l.tokens, Token{INDENT, "", nil, l.line})
 		}
-
-		l.depth = count
+	} else if difference < 0 {
+		for i := 0; i < -difference; i++ {
+			l.tokens = append(l.tokens, Token{DEDENT, "", nil, l.line})
+		}
 	}
+
+	l.depth = count
+
 }
 
 func (l *lexer) getNewline() {
@@ -299,7 +296,7 @@ func (l *lexer) scanToken() {
 	case '\n':
 		l.getNewline()
 		l.line++
-		if !l.isAtEnd() {
+		if !l.isAtEnd() && l.peek() != '\n' {
 			l.getDent()
 		}
 	case '~':

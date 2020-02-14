@@ -15,11 +15,12 @@ type UserFunc struct {
 	Identifier lexer.Token
 	Parameters []string
 	Block      ast.Block
+	Closure    environment.Environment
 }
 
 func (u UserFunc) Call(i Interpreter, args []interface{}) interface{} {
-	// Each function call gets its own environment to allow recursion.
-	i.environment = environment.NewEnclosed(i.environment)
+	// Call a function within it's eclosed environment, making an environment chain all the way up to globals through nested functions.
+	i.environment = environment.NewEnclosed(u.Closure)
 
 	for n, arg := range args {
 		i.environment.Declare(u.Parameters[n], arg)

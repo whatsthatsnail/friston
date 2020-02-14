@@ -317,7 +317,8 @@ func (i Interpreter) VisitFuncDecl(f ast.FuncDecl) interface{} {
 		}
 	}
 
-	function := UserFunc{f.Name, parameters, f.Block}
+	// Capture the current environment when defining a function.
+	function := UserFunc{f.Name, parameters, f.Block, i.environment}
 
 	i.environment.Declare(f.Name.Lexeme, function)
 	return nil
