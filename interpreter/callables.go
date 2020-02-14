@@ -14,7 +14,7 @@ type Function interface {
 type UserFunc struct {
 	Identifier lexer.Token
 	Parameters []string
-	Block ast.Block
+	Block      ast.Block
 }
 
 func (u UserFunc) Call(i Interpreter, args []interface{}) interface{} {

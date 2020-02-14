@@ -2,16 +2,16 @@ package interpreter
 
 import (
 	"fmt"
-	"reflect"
 	"friston/ast"
 	"friston/environment"
 	"friston/errors"
 	"friston/lexer"
+	"reflect"
 )
 
-type Interpreter struct{
-	Repl bool
-	globals environment.Environment
+type Interpreter struct {
+	Repl        bool
+	globals     environment.Environment
 	environment environment.Environment
 }
 
@@ -25,13 +25,13 @@ func NewInterpreter(repl bool) Interpreter {
 	for k, v := range Natives {
 		i.globals.Declare(k, v)
 	}
-	
+
 	i.environment = i.globals
 	return i
 }
 
 func (i Interpreter) Interpret(stmts []ast.Statement) {
-	for _, s := range(stmts) {
+	for _, s := range stmts {
 		i.execute(s)
 	}
 }
@@ -60,9 +60,9 @@ func (i Interpreter) executeBlock(block ast.Block) interface{} {
 		if ok {
 			return i.evaluate(returnStmt.Value)
 		}
-		
+
 		// If a block statement is found, it will return it's own return statement value, or nil
-		blockStmt, ok := stmt.(ast.Block)		
+		blockStmt, ok := stmt.(ast.Block)
 		if ok {
 			return i.executeBlock(blockStmt)
 		}
@@ -258,7 +258,7 @@ func (i Interpreter) VisitCall(c ast.Call) interface{} {
 	callee := i.evaluate(c.Callee)
 
 	var arguments []interface{}
-	for _, arg := range c.Arguments  {
+	for _, arg := range c.Arguments {
 		arguments = append(arguments, i.evaluate(arg))
 	}
 
@@ -309,7 +309,7 @@ func (i Interpreter) VisitWhileStmt(stmt ast.WhileStmt) interface{} {
 
 func (i Interpreter) VisitFuncDecl(f ast.FuncDecl) interface{} {
 	var parameters []string
-	for _, param := range(f.Parameters) {
+	for _, param := range f.Parameters {
 		if param.TType == lexer.IDENTIFIER {
 			parameters = append(parameters, param.Lexeme)
 		} else {
@@ -317,7 +317,8 @@ func (i Interpreter) VisitFuncDecl(f ast.FuncDecl) interface{} {
 		}
 	}
 
-	function := UserFunc{f.Name,parameters, f.Block}
+	function := UserFunc{f.Name, parameters, f.Block}
+
 	i.environment.Declare(f.Name.Lexeme, function)
 	return nil
 }
@@ -339,6 +340,9 @@ func (i Interpreter) VisitReturn(r ast.ReturnStmt) interface{} {
 func (i Interpreter) VisitBlock(b ast.Block) interface{} {
 	// Create a new environment, enclosed by the current scope, and set the current environment to it.
 	i.environment = environment.NewEnclosed(i.environment)
+
+	fmt.Println(i.environment.GetParent())
+	fmt.Println(i.environment.Values)
 
 	return i.executeBlock(b)
 }

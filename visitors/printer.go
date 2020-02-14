@@ -57,17 +57,17 @@ func (printer ASTPrinter) VisitAssignment(a ast.Assignment) interface{} {
 func (printer ASTPrinter) VisitCall(c ast.Call) interface{} {
 	c.Callee.Accept(printer)
 	fmt.Printf("(")
-	for _, arg := range(c.Arguments) {
+	for _, arg := range c.Arguments {
 		arg.Accept(printer)
 	}
-	fmt.Printf(")\n")
+	fmt.Printf(") ")
 
 	return nil
 }
 
 func (printer ASTPrinter) VisitExprStmt(e ast.ExprStmt) interface{} {
 	e.Expr.Accept(printer)
-	fmt.Printf(";\n")
+	fmt.Printf("; ")
 	return nil
 }
 
@@ -95,8 +95,8 @@ func (printer ASTPrinter) VisitWhileStmt(stmt ast.WhileStmt) interface{} {
 }
 
 func (printer ASTPrinter) VisitFuncDecl(f ast.FuncDecl) interface{} {
-	fmt.Printf("function %s : ", f.Name.Lexeme)
-	for _, param := range(f.Parameters) {
+	fmt.Printf("\nfunction %s : ", f.Name.Lexeme)
+	for _, param := range f.Parameters {
 		fmt.Printf(" %s ", param.Lexeme)
 	}
 	fmt.Printf(" =\n")
@@ -107,7 +107,7 @@ func (printer ASTPrinter) VisitFuncDecl(f ast.FuncDecl) interface{} {
 func (printer ASTPrinter) VisitVarDecl(d ast.VarDecl) interface{} {
 	fmt.Printf("let %s = ", d.Name.Lexeme)
 	d.Initializer.Accept(printer)
-	fmt.Printf(";\n")
+	fmt.Printf("; ")
 	return nil
 }
 
@@ -119,8 +119,8 @@ func (printer ASTPrinter) VisitReturn(r ast.ReturnStmt) interface{} {
 }
 
 func (printer ASTPrinter) VisitBlock(b ast.Block) interface{} {
-	fmt.Printf("{\n")
-	for _, s := range(b.Stmts) {
+	fmt.Printf(" { ")
+	for _, s := range b.Stmts {
 		s.Accept(printer)
 	}
 	fmt.Printf("}\n")

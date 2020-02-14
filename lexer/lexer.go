@@ -1,9 +1,9 @@
 package lexer
 
 import (
-	"fmt";
-	"strconv";
+	"fmt"
 	"friston/errors"
+	"strconv"
 )
 
 // Simple helper functions to avoid importing a whole module for a one-liner
@@ -18,10 +18,10 @@ func isAlpha(r rune) bool {
 
 // Literals stores as empty interface, use type assertions when parsing
 type Token struct {
-	TType TokenType
-	Lexeme string
+	TType   TokenType
+	Lexeme  string
 	Literal interface{}
-	Line int
+	Line    int
 }
 
 // Print an instance of a token.
@@ -35,20 +35,20 @@ func (tok Token) Print() {
 
 // Prints a list of tokens in a readable manner as {Token_Type, lexeme, (literal), line}
 func PrintTokens(tokens []Token) {
-	for _, tok := range(tokens) {
+	for _, tok := range tokens {
 		tok.Print()
 	}
 }
 
 type lexer struct {
-	start int
-	current int
-	line int
-	tokens []Token
-	source string
+	start    int
+	current  int
+	line     int
+	tokens   []Token
+	source   string
 	hadError bool
-	repl bool
-	depth int
+	repl     bool
+	depth    int
 }
 
 // Lexer constructor, initializes default values
@@ -79,7 +79,7 @@ func (l *lexer) isAtEnd() bool {
 // Consumes the current character and returns it
 func (l *lexer) advance() rune {
 	l.current++
-	return rune(l.source[l.current - 1])
+	return rune(l.source[l.current-1])
 }
 
 // Peeks at next character without consuming it
@@ -93,8 +93,8 @@ func (l *lexer) peek() rune {
 
 // Returns the next character without consuming it, as long as there is another character peek
 func (l *lexer) peekNext() rune {
-	if !l.isAtEnd() && !((l.current + 1) > len(l.source) - 1) {
-		return rune(l.source[l.current + 1])
+	if !l.isAtEnd() && !((l.current + 1) > len(l.source)-1) {
+		return rune(l.source[l.current+1])
 	} else {
 		return '\n'
 	}
@@ -135,9 +135,9 @@ func (l *lexer) getString() {
 	if l.peek() == '"' {
 		// Consume the " and store the STRING token
 		l.advance()
-		literal := l.source[l.start + 1 : l.current - 1]
+		literal := l.source[l.start+1 : l.current-1]
 		l.addToken(STRING, literal)
-	// If there's no terminating ", throw an error
+		// If there's no terminating ", throw an error
 	} else {
 		l.throwError("Unterminated string")
 	}
@@ -150,7 +150,9 @@ func (l *lexer) getNumber() {
 
 	// Advance until end of number (while peek == a digit or a dot, as long as there's another number after the dot)
 	for (isDigit(l.peek()) || (l.peek() == '.' && isDigit(l.peekNext()))) && !l.isAtEnd() {
-		if l.peek() == '.' {floatFlag = true}
+		if l.peek() == '.' {
+			floatFlag = true
+		}
 		l.advance()
 	}
 
@@ -167,7 +169,7 @@ func (l *lexer) getNumber() {
 
 func (l *lexer) getWord() {
 	// Advance to en of word
-	for (isAlpha(l.peek()) && !l.isAtEnd()) {
+	for isAlpha(l.peek()) && !l.isAtEnd() {
 		l.advance()
 	}
 
@@ -178,9 +180,9 @@ func (l *lexer) getWord() {
 		l.addToken(NIL, nil)
 	} else if keywords[word] == 0 {
 		l.addToken(IDENTIFIER, word)
-	} else if  word == "true" {
+	} else if word == "true" {
 		l.addToken(TRUE, true)
-	} else if  word == "false" {
+	} else if word == "false" {
 		l.addToken(FALSE, false)
 	} else {
 		l.addToken(keywords[word], word)
@@ -195,7 +197,7 @@ func (l *lexer) countIndent() int {
 		l.advance()
 	}
 
-	if count % 4 == 0 {
+	if count%4 == 0 {
 		count = count / 4
 		return count
 	} else {
@@ -210,8 +212,8 @@ func (l *lexer) getDent() {
 	count := l.countIndent()
 
 	// Disregard whitespace before indented comments.
-	possibleComment := string(l.source[l.current:l.current + 2])
-	if possibleComment != "//" {
+	possibleComment := string(l.source[l.current : l.current+2])
+	if possibleComment != "//" && l.peek() != '\n' {
 		difference := count - l.depth
 
 		if difference > 0 {
@@ -229,15 +231,11 @@ func (l *lexer) getDent() {
 }
 
 func (l *lexer) getNewline() {
-	previousToken := l.tokens[len(l.tokens) - 1]
-	
-	// Only append NEWLINE if the previous character is not a newline or 'then' keyword
-	if previousToken.TType != NEWLINE && previousToken.TType != SEMICOLON && previousToken.TType != THEN && previousToken.TType != EQUAL && previousToken.TType != DEDENT{
-		l.tokens = append(l.tokens, Token{NEWLINE, "", nil, l.line})
-	}
+	previousToken := l.tokens[len(l.tokens)-1]
 
-	if !l.isAtEnd() {
-		l.getDent()
+	// Only append NEWLINE if the previous character is not a newline or 'then' keyword
+	if previousToken.TType != NEWLINE && previousToken.TType != SEMICOLON && previousToken.TType != THEN && previousToken.TType != EQUAL && previousToken.TType != DEDENT {
+		l.tokens = append(l.tokens, Token{NEWLINE, "", nil, l.line})
 	}
 }
 
@@ -301,6 +299,9 @@ func (l *lexer) scanToken() {
 	case '\n':
 		l.getNewline()
 		l.line++
+		if !l.isAtEnd() {
+			l.getDent()
+		}
 	case '~':
 		// Skip a newline if it's preceded by a '~' to allow a statement to continue to a new line of text.
 		if l.peek() == '\n' {
@@ -319,7 +320,7 @@ func (l *lexer) scanToken() {
 	default:
 		if isDigit(char) {
 			l.getNumber()
-		} else if isAlpha(char){
+		} else if isAlpha(char) {
 			l.getWord()
 		} else {
 			l.throwError(fmt.Sprintf("Invalid character '%c'", char))

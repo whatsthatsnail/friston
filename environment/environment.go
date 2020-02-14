@@ -1,9 +1,9 @@
 package environment
 
 import (
-	"fmt";
-	"friston/lexer"
+	"fmt"
 	"friston/errors"
+	"friston/lexer"
 )
 
 type Environment struct {
@@ -17,10 +17,19 @@ func NewEnvironment() Environment {
 	return env
 }
 
+// Creates a new environment with the specified parent environment.
 func NewEnclosed(parent Environment) Environment {
 	enclosed := NewEnvironment()
 	enclosed.AddParent(parent)
 	return enclosed
+}
+
+func (e *Environment) GetParent() interface{} {
+	if e.parent != nil {
+		return *e.parent
+	}
+
+	return "Global"
 }
 
 func (e *Environment) AddParent(parentEnv Environment) {
@@ -55,7 +64,7 @@ func (e *Environment) Assign(name lexer.Token, value interface{}) {
 		// Just like Get(), recurively check parent scopes for the target variable.
 		e.parent.Assign(name, value)
 		return
-	} 
+	}
 
 	// TODO: Stop execution with runtime error.
 	// TODO: Fix line number.

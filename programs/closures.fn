@@ -1,0 +1,11 @@
+function makeCounter: =
+    let i = 0
+    function count: =
+        i = i + 1
+        println(i)
+
+    return count
+
+let counter = makeCounter()
+counter()
+counter()
