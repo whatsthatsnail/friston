@@ -1,15 +1,15 @@
 package main
 
 import (
-	"fmt"
 	"bufio"
-	"os"
-	"io/ioutil"
-	"friston/lexer"
-	"friston/type_generator"
-	"friston/parser"
-	"friston/visitors"
+	"fmt"
 	"friston/interpreter"
+	"friston/lexer"
+	"friston/parser"
+	"friston/type_generator"
+	"friston/visitors"
+	"io/ioutil"
+	"os"
 )
 
 // Gets arguments when using 'go run *.go -- ...'
@@ -81,10 +81,10 @@ func file(path string, quiet bool) {
 		fmt.Println(string(dat) + "\n")
 	}
 
-	lex := lexer.NewLexer(string(dat), false)
+	lex := lexer.NewLexer(string(dat), false)s
 	tokens, lexErr := lex.ScanTokens()
 
-	if !lexErr{
+	if !lexErr {
 		if !quiet {
 			lexer.PrintTokens(tokens)
 		}
@@ -95,7 +95,7 @@ func file(path string, quiet bool) {
 		if !quiet && !parErr {
 			printer := visitors.ASTPrinter{}
 			fmt.Printf("\n")
-			for _, s := range(stmts) {
+			for _, s := range stmts {
 				s.Accept(printer)
 			}
 			fmt.Printf("\n")
@@ -115,7 +115,7 @@ func genASTSource(path string) {
 	scanner := lexer.NewLexer(string(dat), false)
 	tokens, errFlag := scanner.ScanTokens()
 
-	if !errFlag{
+	if !errFlag {
 		type_generator.GenerateNodeTypes(tokens)
 	}
 }

@@ -25,18 +25,18 @@ type Token struct {
 }
 
 // Print an instance of a token.
-func (tok Token) Print() {
+func (tok Token) String() string {
 	if tok.Literal == nil {
-		fmt.Printf("{%s, '%s', %d}\n", tok.TType.typeString(), tok.Lexeme, tok.Line)
+		return fmt.Sprintf("{%s, '%s', %d}", tok.TType.typeString(), tok.Lexeme, tok.Line)
 	} else {
-		fmt.Printf("{%s, '%s', %v, %d}\n", tok.TType.typeString(), tok.Lexeme, tok.Literal, tok.Line)
+		return fmt.Sprintf("{%s, '%s', %v, %d}", tok.TType.typeString(), tok.Lexeme, tok.Literal, tok.Line)
 	}
 }
 
 // Prints a list of tokens in a readable manner as {Token_Type, lexeme, (literal), line}
 func PrintTokens(tokens []Token) {
 	for _, tok := range tokens {
-		tok.Print()
+		fmt.Println(tok)
 	}
 }
 

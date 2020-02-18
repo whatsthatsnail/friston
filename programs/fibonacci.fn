@@ -1,3 +1,4 @@
+// Record the time when the calculation starts.
 let firsttime = clock()
 
 // fib(n) returns the nth number in the fibonacci sequence.
@@ -17,8 +18,10 @@ function printFibN: n =
 
 printFibN(30)
 
+// Record the time when the calculation ends.
 let secondtime = clock()
 
-print("Caclulation time: ")
+// Evaluate and print the total calculation time.
+print("Calculation time: ")
 print(secondtime-firsttime)
 println(" seconds.")
